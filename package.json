@@ -1,0 +1,35 @@
+{
+  "name": "supida",
+  "version": "1.0.0",
+  "description": "Supida server",
+  "homepage": "https://github.com/leeminhyeong911/supida#readme",
+  "bugs": {
+    "url": "https://github.com/leeminhyeong911/supida/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leeminhyeong911/supida.git"
+  },
+  "license": "MIT",
+  "author": "MINYEONG LEE",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --exec babel-node src/server.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "connect-mongo": "^6.0.0",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "mongoose": "^9.4.1",
+    "morgan": "^1.10.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.28.6",
+    "@babel/core": "^7.29.0",
+    "@babel/node": "^7.29.0",
+    "@babel/preset-env": "^7.29.2",
+    "nodemon": "^3.1.14"
+  }
+}

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	
+				<!-- user common css -->
+		<link href="user2.css" rel="stylesheet">
+		<!-- /user common css -->
+		
+		<!-- Custom styles for this template -->
+		<!-- <link href="/images/basic_resp/css/style.css?v=202405091600" rel="stylesheet"> -->
+		<link href="Custom1.css" rel="stylesheet">
+		<link href="Custom2.css" rel="stylesheet" type="text/css">
+	<style>
+/* ================== 모바일 메뉴 ================== */
+.nav-btn {
+    width: 28px;
+    height: 22px;
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    z-index: 9999;
+}
+.nav-btn span {
+    display: block;
+    width: 100%;
+    height: 3px;
+    background: #002157;
+    border-radius: 3px;
+}
+
+/* 모바일 네비게이션 */
+@media (max-width: 980px) {
+    #nav {
+        position: fixed;
+        top: 0;
+        right: -260px;
+        width: 260px;
+        height: 100vh;
+        background: white;
+        padding: 80px 30px;
+        display: flex !important;
+        flex-direction: column;
+        gap: 25px;
+        transition: right .3s ease;
+        z-index: 9998;
+        box-shadow: -4px 0 12px rgba(0,0,0,0.2);
+    }
+
+    #nav.open {
+        right: 0;
+    }
+
+    .nav-btn {
+        display: flex;
+    }
+
+    .nav-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.45);
+        display: none;
+        z-index: 9990;
+    }
+
+    .nav-bg.active {
+        display: block !important;
+    }
+}
+</style>
+
+	</head>
+
+	<body>
+
+		<div id="wrapper">
+
+			<!--[[AREA_TOP_START]]-->
+			<div id="header">
+				<div id="header_in">
+					<!--L_SITE_LOGO[[[--><!-- Image Upload Logo -->
+<div id="L_SITE_LOGO">
+			<h1>
+			<a  href="/"><img src="logo1.png" width="120" height="50"
+border="0"></a>
+		</h1>
+	</div>
+
+
+<!-- Text Logo -->
+<!-- <a class="navbar-brand" href="/"><h1>LOGO TYPE</h1></a> --><!--L_SITE_LOGO]]]-->
+					<!--L_TOP_MENU[[[--><div class="nav-btn">
+	<span></span>
+	<span></span>
+	<span></span>
+</div>	
+<nav id="nav">
+<div class="util-menu">
+	<ul>		
+    <li id="loginMenu"><a href="/login">LOGIN</a></li>
+    <li id="joinMenu"><a href="/join">JOIN</a></li>
+    <li id="logoutMenu" style="display:none;">
+        <a href="#" onclick="logout()">LOGOUT</a>
+    </li>
+</ul>
+</div><!--L_TOP_GNB]]]-->
+<style>
+/* 상단 메뉴 바 */
+.navbar {
+  display: flex;
+  justify-content: center;
+  gap: 100px;
+  background-color: white;
+  padding: 20px 0;
+  font-family: 'Arial', sans-serif;
+}
+
+/* 상위 메뉴 */
+.navbar li {
+  position: relative;
+  list-style: none;
+  font-weight: bold;
+}
+
+.navbar a {
+  text-decoration: none;
+  color: #001c54;
+}
+
+/* 하위 메뉴 (기본 숨김) */
+.navbar .submenu {
+  position: absolute;
+  top: 35px;
+  left: 0;
+  display: none;
+  flex-direction: column;
+  background-color: white;
+  padding: 15px 0;
+  min-width: 180px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* 하위 메뉴 항목 */
+.navbar .submenu a {
+  padding: 8px 20px;
+  color: #001c54;
+  font-weight: normal;
+  white-space: nowrap;
+}
+
+/* hover 시 표시 */
+.navbar li:hover .submenu {
+  display: flex;
+}
+
+/* 아래로 살짝 내려오는 효과 */
+.navbar .submenu {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.navbar li:hover .submenu {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* 살짝 구분선 느낌 */
+.navbar li:hover > a {
+  border-bottom: 2px solid #001c54;
+  padding-bottom: 2px;
+}
+</style><!--L_TOP_GNB]]]-->
+
+	<h2 class="hidden">사이트 메뉴</h2>
+	<ul class="navigation">
+      <li>
+        <a href="#" class="main-menu">회사소개</a>
+        <div class="sub-menu">
+		  <a href="boss">회사 소개</a>
+          <a href="map">찾아오시는 길</a>
+		   
+        </div>
+      </li>
+
+      <li>
+        <a href="#" class="main-menu">예초 작업</a>
+        <div class="sub-menu">
+          <a href="menu1">작업 소개</a>
+          <a href="menu2">시공 사례</a>
+        </div>
+      </li>
+
+      <li>
+        <a href="#" class="main-menu">위험 수목</a>
+        <div class="sub-menu">
+          <a href="menu3">작업 소개</a>
+          <a href="menu4">시공 사례</a>
+        </div>
+      </li>
+
+      <li>
+        <a href="#" class="main-menu">고객센터</a>
+        <div class="sub-menu">
+          <a href="FAQ">FAQ</a>
+          <a href="문의">문의하기</a>
+        </div>
+      </li>
+    </ul>
+  </li>
+</ul>
+  </div>
+</div>
+<!--L_TOP_MENU]]]-->
+				</div>
+                <div class="nav-bg"></div>
+			</div>
+			<style>
+/* ===== 슬라이드 ===== */
+.slider {
+  position: relative;
+  height: 600px;
+  overflow: hidden;
+}
+
+.slide {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: 1s;
+}
+
+.slide.active { opacity: 1; }
+
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  text-align: center;
+}
+
+.text h1 { font-size: 50px; }
+.text p { font-size: 20px; }
+
+button {
+  padding:10px 20px;
+  background:#2e7d32;
+  border:none;
+  color:white;
+  cursor:pointer;
+}
+
+/
+/* ===== CTA ===== */
+.hero {
+  margin-top:64px;
+  background:linear-gradient(90deg,#1b5e20,#66bb6a);
+  text-align:center;
+  padding:64px 24px;
+  color:white;
+}
+</style>
+</head>
+
+<body>
+
+
+<!-- ===== 슬라이드 ===== -->
+<div class="slider">
+
+  <div class="slide active">
+    <img src="원주아파트.png">
+    <div class="text">
+      <h1>문의하기</h1>
+      <p>수피다는 예초 및 위험 수목 작업을 전문으로 하는 현장 중심 기업입니다.</p>
+    </div>
+  </div>
+
+
+</div>
+</style>
+<!-- 상단 디자인 -->
+<div class="page_nav">
+	<div class="nav_tit">
+		<h3>문의하기</h3>
+		<ul>
+			<li>HOME</li>
+			<li>고객센터</li>
+			<li class="_last">문의하기</li>
+		</ul>
+    </div>       
+</div>
+<div id="subContents">
+    <div class="sub-contents">
+        <div class="sub1-2">
+            <div class="subtit">
+                <div class="tit">
+                    <h3>문의하기</h3>
+                 </div>
+                <div class="subtit_line">
+                </div>
+            </div>
+<style>
+body 
+.form-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.form-table td {
+    border-bottom: 1px solid #ddd;
+    padding: 12px;
+}
+
+.label {
+    width: 150px;
+    background: #f5f5f5;
+}
+
+input[type="text"], input[type="password"] {
+    width: 300px;
+    padding: 6px;
+}
+
+textarea {
+    width: 100%;
+    height: 300px;
+    padding: 10px;
+}
+
+.btn-area {
+    text-align: center;
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 5px;
+}
+</style>
+
+</head>
+<body>
+
+
+<form action="/submit" method="post" enctype="multipart/form-data">
+
+<table class="form-table">
+
+<tr>
+    <td class="label">비밀글</td>
+    <td>
+        <label><input type="radio" name="secret" value="y"> y</label>
+        <label><input type="radio" name="secret" value="n" checked> n</label>
+    </td>
+</tr>
+
+<tr>
+    <td class="label">비밀번호</td>
+    <td><input type="password" name="password"></td>
+</tr>
+
+<tr>
+    <td class="label">첨부파일</td>
+    <td><input type="file" name="file1"></td>
+</tr>
+
+<tr>
+    <td class="label">첨부파일</td>
+    <td><input type="file" name="file2"></td>
+</tr>
+
+<tr>
+    <td class="label">첨부파일</td>
+    <td><input type="file" name="file3"></td>
+</tr>
+
+<tr>
+    <td colspan="2">
+        <input type="text" name="title" placeholder="제목을 입력해 주세요." style="width:100%; padding:10px;">
+    </td>
+</tr>
+
+<tr>
+    <td colspan="2">
+        <textarea name="content" placeholder="내용을 입력하세요"></textarea>
+    </td>
+</tr>
+
+</table>
+
+<div class="btn-area">
+    <button type="submit">등록</button>
+    <button type="button" onclick="history.back()">취소</button>
+</div>
+
+</form>
+<script src="/auth.js"></script>
+</body>
+</html>

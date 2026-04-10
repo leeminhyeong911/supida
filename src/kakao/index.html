@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h2>로그인 중...</h2>
+
+<script>
+const code = new URL(window.location.href).searchParams.get("code");
+
+if (code) {
+  // 로그인 상태 저장 ⭐ 핵심
+  localStorage.setItem("login", "true");
+
+  // 메인으로 이동 ⭐ 핵심
+  window.location.href = "/";
+} else {
+  document.body.innerHTML = "<p>로그인 실패</p>";
+}
+</script>
+
+</body>
+</html>

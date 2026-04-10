@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
+<script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f6f7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-container {
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 320px;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  color: #1b5e20;
+}
+
+/* 일반 로그인 */
+.input-group {
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.login-btn {
+  background: #1b5e20;
+  color: white;
+  border: none;
+  padding: 13px;
+  width: 100%;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-top: 4px;
+}
+
+.login-btn:hover {
+  background: #2e7d32;
+}
+
+.join-link {
+  font-size: 13px;
+  color: gray;
+  margin-top: 10px;
+}
+
+.join-link a {
+  color: #1b5e20;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* 구분선 */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+  color: #aaa;
+  font-size: 13px;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #ddd;
+}
+
+/* 소셜 로그인 */
+.social-btns {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.social-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+
+.kakao-icon {
+  background: #FEE500;
+}
+
+.kakao-icon:hover {
+  background: #fada0a;
+}
+
+.naver-icon {
+  background: #03C75A;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.naver-icon:hover {
+  background: #02b350;
+}
+
+.desc {
+  font-size: 12px;
+  color: #bbb;
+  margin-top: 16px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-container">
+  <div class="logo">SUPIA</div>
+
+  <!-- 일반 로그인 -->
+  <form action="/login" method="POST">
+    <div class="input-group">
+      <input type="text" name="username" placeholder="아이디" required>
+    </div>
+    <div class="input-group">
+      <input type="password" name="password" placeholder="비밀번호" required>
+    </div>
+    <button type="submit" class="login-btn">로그인</button>
+  </form>
+
+  <div class="join-link">
+    아직 회원이 아니신가요? <a href="/join">회원가입</a>
+  </div>
+
+  <!-- 구분선 -->
+  <div class="divider">소셜 로그인</div>
+
+  <!-- 소셜 로그인 아이콘 -->
+  <div class="social-btns">
+    <button class="social-btn kakao-icon" onclick="loginWithKakao()" title="카카오 로그인">
+      💬
+    </button>
+    <button class="social-btn naver-icon" onclick="loginWithNaver()" title="네이버 로그인">
+      N
+    </button>
+  </div>
+
+  <div class="desc">소셜 계정으로 간편하게 로그인하세요</div>
+</div>
+
+<script>
+Kakao.init('20ba2809c6507b2e7055f31baa2488d4');
+
+function loginWithKakao() {
+  Kakao.Auth.authorize({
+    redirectUri: 'https://supia.netlify.app/kakao'
+  });
+}
+
+function loginWithNaver() {
+  // 네이버 Client ID 발급 후 여기에 추가
+  alert('네이버 로그인은 준비 중입니다!');
+}
+</script>
+<script src="/auth.js"></script>
+
+</body>
+</html>

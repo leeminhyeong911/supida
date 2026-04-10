@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>회원가입</title>
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f6f7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.join-container {
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 320px;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  color: #1b5e20;
+}
+
+.input-group {
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.input-group label {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #1b5e20;
+}
+
+.join-btn {
+  background: #1b5e20;
+  color: white;
+  border: none;
+  padding: 13px;
+  width: 100%;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-top: 8px;
+}
+
+.join-btn:hover {
+  background: #2e7d32;
+}
+
+.login-link {
+  font-size: 13px;
+  color: gray;
+  margin-top: 16px;
+}
+
+.login-link a {
+  color: #1b5e20;
+  text-decoration: none;
+  font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="join-container">
+  <div class="logo">SUPIA</div>
+
+  <form action="/join" method="POST">
+    <div class="input-group">
+      <label>아이디</label>
+      <input type="text" name="username" placeholder="아이디를 입력하세요" required>
+    </div>
+    <div class="input-group">
+      <label>비밀번호</label>
+      <input type="password" name="password" placeholder="비밀번호를 입력하세요" required>
+    </div>
+    <div class="input-group">
+      <label>비밀번호 확인</label>
+      <input type="password" name="passwordConfirm" placeholder="비밀번호를 다시 입력하세요" required>
+    </div>
+    <button type="submit" class="join-btn">회원가입</button>
+  </form>
+
+  <div class="login-link">
+    이미 회원이신가요? <a href="/login">로그인</a>
+  </div>
+</div>
+
+<script>
+document.querySelector('form').addEventListener('submit', function(e) {
+  const password = document.querySelector('input[name="password"]').value;
+  const confirm = document.querySelector('input[name="passwordConfirm"]').value;
+  if (password !== confirm) {
+    e.preventDefault();
+    alert('비밀번호가 일치하지 않아요!');
+  }
+});
+</script>
+<script src="/auth.js"></script>
+
+</body>
+</html>

@@ -6,7 +6,10 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import { createServer } from "http";
+import { Server } from "socket.io";
 import User from "./user.js";
+import Inquiry from "./Inquiry.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -14,6 +17,8 @@ const __dirname = dirname(__filename);
 const PORT = process.env.PORT || 3000;
 const MONGO_URL = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/supida";
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer);
 const logger = morgan("dev");
 
 // MongoDB 연결
@@ -31,9 +36,10 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: MONGO_URL }),
-    cookie: { maxAge: 1000 * 60 * 60 * 24 }, // 24시간
+    cookie: { maxAge: 1000 * 60 * 60 * 24 },
 }));
 
+// 로그인 상태 확인
 app.get('/api/me', (req, res) => {
     if (req.session.user) {
         res.json({ loggedIn: true, username: req.session.user.username });
@@ -55,10 +61,59 @@ app.get('/menu2', (req, res) => res.sendFile(join(__dirname, 'menu2.html')));
 app.get('/menu3', (req, res) => res.sendFile(join(__dirname, 'menu3.html')));
 app.get('/menu4', (req, res) => res.sendFile(join(__dirname, 'menu4.html')));
 app.get('/예초', (req, res) => res.sendFile(join(__dirname, '1예초.html')));
-app.get('/fqa', (req, res) => res.sendFile(join(__dirname, 'FQA.html')));
-app.get('/문의', (req, res) => res.sendFile(join(__dirname, '문의.html')));
-app.get('/login', (req, res) => res.sendFile(join(__dirname, 'login.html')));
+app.get('/FAQ', (req, res) => res.sendFile(join(__dirname, 'FAQ.html')));
+app.get('/qna', (req, res) => res.sendFile(join(__dirname, 'qna.html')));
 app.get('/q', (req, res) => res.sendFile(join(__dirname, 'q.html')));
+app.get('/qna/:id', (req, res) => res.sendFile(join(__dirname, 'qna_detail.html')));
+
+// 문의 목록 API
+app.get('/api/qna', async (req, res) => {
+    try {
+        const inquiries = await Inquiry.find().sort({ createdAt: -1 });
+        res.json(inquiries);
+    } catch (err) {
+        res.status(500).json({ error: "오류 발생" });
+    }
+});
+
+// 문의 작성 API
+app.post('/api/qna', async (req, res) => {
+    try {
+        const { name, title, content, secret, password } = req.body;
+        const hash = (secret === 'y' && password) ? await bcrypt.hash(password, 10) : null;
+        const inquiry = await Inquiry.create({
+            name, title, content,
+            secret: secret === 'y',
+            password: hash
+        });
+        res.json({ ok: true, id: inquiry._id });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ ok: false });
+    }
+});
+
+// 문의 상세 API
+app.get('/api/qna/:id', async (req, res) => {
+    try {
+        const inquiry = await Inquiry.findByIdAndUpdate(
+            req.params.id,
+            { $inc: { views: 1 } },
+            { new: true }
+        );
+        res.json(inquiry);
+    } catch (err) {
+        res.status(404).json({ error: "없음" });
+    }
+});
+
+// 관리자 답변 API
+app.post('/api/qna/:id/answer', async (req, res) => {
+    if (!req.session.user?.isAdmin) return res.status(403).json({ error: "권한 없음" });
+    const { answer } = req.body;
+    await Inquiry.findByIdAndUpdate(req.params.id, { answer, answeredAt: new Date() });
+    res.json({ ok: true });
+});
 
 // 회원가입
 app.post('/join', async (req, res) => {
@@ -83,16 +138,12 @@ app.post('/login', async (req, res) => {
         if (!user) return res.send("존재하지 않는 아이디예요");
         const match = await bcrypt.compare(password, user.password);
         if (!match) return res.send("비밀번호가 틀렸어요");
-        req.session.user = { id: user._id, username: user.username };
+        req.session.user = { id: user._id, username: user.username, isAdmin: user.isAdmin };
         res.redirect('/');
     } catch (err) {
         console.log(err);
         res.send("로그인 중 오류가 발생했어요");
     }
-});
-
-app.get('/join', (req, res) => {
-    res.sendFile(join(__dirname, 'join.html'));
 });
 
 // 로그아웃
@@ -101,7 +152,22 @@ app.post('/logout', (req, res) => {
     res.redirect('/');
 });
 
-const handleListening = () =>
-    console.log(`server listening on port http://localhost:${PORT}`);
+// 실시간 채팅
+const chatHistory = [];
+io.on('connection', (socket) => {
+    socket.emit('history', chatHistory);
+    socket.on('message', (msg) => {
+        const data = {
+            name: msg.name || '익명',
+            text: msg.text,
+            time: new Date().toLocaleTimeString('ko-KR')
+        };
+        chatHistory.push(data);
+        if (chatHistory.length > 100) chatHistory.shift();
+        io.emit('message', data);
+    });
+});
 
-app.listen(PORT, handleListening);
+httpServer.listen(PORT, () => console.log(`server listening on http://localhost:${PORT}`));
+
+console.log("MONGO_URL:", process.env.MONGO_URL);

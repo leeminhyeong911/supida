@@ -1,387 +1,157 @@
+`map.html` 전체 코드예요:
+
+```html
 <!DOCTYPE html>
-<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	
-				<!-- user common css -->
-		<link href="user2.css" rel="stylesheet">
-		<!-- /user common css -->
-		
-		<!-- Custom styles for this template -->
-		<!-- <link href="/images/basic_resp/css/style.css?v=202405091600" rel="stylesheet"> -->
-		<link href="Custom1.css" rel="stylesheet">
-		<link href="Custom2.css" rel="stylesheet" type="text/css">
-	<style>
-/* ================== 모바일 메뉴 ================== */
-.nav-btn {
-    width: 28px;
-    height: 22px;
-    display: none;
-    flex-direction: column;
-    justify-content: space-between;
-    cursor: pointer;
-    z-index: 9999;
-}
-.nav-btn span {
-    display: block;
-    width: 100%;
-    height: 3px;
-    background: #002157;
-    border-radius: 3px;
-}
-
-/* 모바일 네비게이션 */
-@media (max-width: 980px) {
-    #nav {
-        position: fixed;
-        top: 0;
-        right: -260px;
-        width: 260px;
-        height: 100vh;
-        background: white;
-        padding: 80px 30px;
-        display: flex !important;
-        flex-direction: column;
-        gap: 25px;
-        transition: right .3s ease;
-        z-index: 9998;
-        box-shadow: -4px 0 12px rgba(0,0,0,0.2);
+<html lang="ko">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link href="user2.css" rel="stylesheet">
+  <link href="Custom1.css" rel="stylesheet">
+  <link href="Custom2.css" rel="stylesheet" type="text/css">
+  <style>
+    .nav-btn { width:28px; height:22px; display:none; flex-direction:column; justify-content:space-between; cursor:pointer; z-index:9999; }
+    .nav-btn span { display:block; width:100%; height:3px; background:#002157; border-radius:3px; }
+    @media (max-width:980px) {
+      #nav { position:fixed; top:0; right:-260px; width:260px; height:100vh; background:white; padding:80px 30px; display:flex !important; flex-direction:column; gap:25px; transition:right .3s ease; z-index:9998; box-shadow:-4px 0 12px rgba(0,0,0,0.2); }
+      #nav.open { right:0; }
+      .nav-btn { display:flex; }
+      .nav-bg { position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.45); display:none; z-index:9990; }
+      .nav-bg.active { display:block !important; }
     }
-
-    #nav.open {
-        right: 0;
-    }
-
-    .nav-btn {
-        display: flex;
-    }
-
-    .nav-bg {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0,0,0,0.45);
-        display: none;
-        z-index: 9990;
-    }
-
-    .nav-bg.active {
-        display: block !important;
-    }
-}
-#loginMenu, #joinMenu {
-    visibility: hidden;
-}
-</style>
-
-	</head>
-
-	<body>
-
-		<div id="wrapper">
-
-			<!--[[AREA_TOP_START]]-->
-			<div id="header">
-				<div id="header_in">
-					<!--L_SITE_LOGO[[[--><!-- Image Upload Logo -->
-<div id="L_SITE_LOGO">
-			<h1>
-			<a  href="/"><img src="logo1.png" width="120" height="50"
-border="0"></a>
-		</h1>
-	</div>
-
-
-<!-- Text Logo -->
-<!-- <a class="navbar-brand" href="/"><h1>LOGO TYPE</h1></a> --><!--L_SITE_LOGO]]]-->
-					<!--L_TOP_MENU[[[--><div class="nav-btn">
-	<span></span>
-	<span></span>
-	<span></span>
-</div>	
-<nav id="nav">
-	
-<div class="util-menu" style="visibility: hidden;">
-	<ul>		
-	<ul>		
-    <li id="loginMenu"><a href="/login">LOGIN</a></li>
-    <li id="joinMenu"><a href="/join">JOIN</a></li>
-    <li id="logoutMenu" style="display:none;">
-        <a href="#" onclick="logout()">LOGOUT</a>
-    </li>
-</ul>
-</div><!--L_TOP_GNB]]]-->
-<style>
-/* 상단 메뉴 바 */
-.navbar {
-  display: flex;
-  justify-content: center;
-  gap: 100px;
-  background-color: white;
-  padding: 20px 0;
-  font-family: 'Arial', sans-serif;
-}
-
-/* 상위 메뉴 */
-.navbar li {
-  position: relative;
-  list-style: none;
-  font-weight: bold;
-}
-
-.navbar a {
-  text-decoration: none;
-  color: #001c54;
-}
-
-/* 하위 메뉴 (기본 숨김) */
-.navbar .submenu {
-  position: absolute;
-  top: 35px;
-  left: 0;
-  display: none;
-  flex-direction: column;
-  background-color: white;
-  padding: 15px 0;
-  min-width: 180px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-/* 하위 메뉴 항목 */
-.navbar .submenu a {
-  padding: 8px 20px;
-  color: #001c54;
-  font-weight: normal;
-  white-space: nowrap;
-}
-
-/* hover 시 표시 */
-.navbar li:hover .submenu {
-  display: flex;
-}
-
-/* 아래로 살짝 내려오는 효과 */
-.navbar .submenu {
-  opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.3s ease;
-  pointer-events: none;
-}
-
-.navbar li:hover .submenu {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-
-/* 살짝 구분선 느낌 */
-.navbar li:hover > a {
-  border-bottom: 2px solid #001c54;
-  padding-bottom: 2px;
-}
-</style><!--L_TOP_GNB]]]-->
-
-	<h2 class="hidden">사이트 메뉴</h2>
-	<ul class="navigation">
-      <li>
-        <a href="#" class="main-menu">회사소개</a>
-        <div class="sub-menu">
-		  <a href="boss">회사 소개</a>
-          <a href="map">찾아오시는 길</a>
-		   
-        </div>
-      </li>
-
-      <li>
-        <a href="#" class="main-menu">예초 작업</a>
-        <div class="sub-menu">
-          <a href="menu1">작업 소개</a>
-          <a href="menu2">시공 사례</a>
-        </div>
-      </li>
-
-      <li>
-        <a href="#" class="main-menu">위험 수목</a>
-        <div class="sub-menu">
-          <a href="menu3">작업 소개</a>
-          <a href="menu4">시공 사례</a>
-        </div>
-      </li>
-
-      <li>
-        <a href="#" class="main-menu">고객센터</a>
-        <div class="sub-menu">
-          <a href="FAQ">FAQ</a>
-          <a href="qna">문의하기</a>
-        </div>
-      </li>
-    </ul>
-  </li>
-</ul>
-  </div>
-</div>
-<!--L_TOP_MENU]]]-->
-				</div>
-                <div class="nav-bg"></div>
-			</div>
-			<style>
-/* ===== 슬라이드 ===== */
-.slider {
-  position: relative;
-  height: 600px;
-  overflow: hidden;
-}
-
-.slide {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  transition: 1s;
-}
-
-.slide.active { opacity: 1; }
-
-.slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  text-align: center;
-}
-
-.text h1 { font-size: 50px; }
-.text p { font-size: 20px; }
-
-button {
-  padding:10px 20px;
-  background:#2e7d32;
-  border:none;
-  color:white;
-  cursor:pointer;
-}
-
-/
-/* ===== CTA ===== */
-.hero {
-  margin-top:64px;
-  background:linear-gradient(90deg,#1b5e20,#66bb6a);
-  text-align:center;
-  padding:64px 24px;
-  color:white;
-}
-</style>
+    .slider { position:relative; height:600px; overflow:hidden; }
+    .slide { position:absolute; width:100%; height:100%; opacity:0; transition:1s; }
+    .slide.active { opacity:1; }
+    .slide img { width:100%; height:100%; object-fit:cover; }
+    .text { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:white; text-align:center; }
+    .text h1 { font-size:50px; }
+    .text p { font-size:20px; }
+  </style>
 </head>
-
 <body>
+<div id="wrapper">
 
-
-<!-- ===== 슬라이드 ===== -->
-<div class="slider">
-
-  <div class="slide active">
-    <img src="원주아파트.png">
-    <div class="text">
-      <h1>찾아오시는 길</h1>
-      <p>잡초 제거부터 정원 관리까지 완벽하게</p>
+  <div id="header">
+    <div id="header_in">
+      <div id="L_SITE_LOGO">
+        <h1><a href="/"><img src="logo1.png" width="120" height="50" border="0"></a></h1>
+      </div>
+      <div class="nav-btn"><span></span><span></span><span></span></div>
+      <nav id="nav">
+        <div class="util-menu" style="visibility:hidden;">
+          <ul>
+            <li id="loginMenu"><a href="/login">LOGIN</a></li>
+            <li id="joinMenu"><a href="/join">JOIN</a></li>
+            <li id="logoutMenu" style="display:none;"><a href="#" onclick="logoutUser()">LOGOUT</a></li>
+          </ul>
+        </div>
+        <h2 class="hidden">사이트 메뉴</h2>
+        <ul class="navigation">
+          <li>
+            <a href="#" class="main-menu">회사소개</a>
+            <div class="sub-menu">
+              <a href="/boss">회사 소개</a>
+              <a href="/map">찾아오시는 길</a>
+            </div>
+          </li>
+          <li>
+            <a href="#" class="main-menu">예초 작업</a>
+            <div class="sub-menu">
+              <a href="/menu1">작업 소개</a>
+              <a href="/menu2">시공 사례</a>
+            </div>
+          </li>
+          <li>
+            <a href="#" class="main-menu">위험 수목</a>
+            <div class="sub-menu">
+              <a href="/menu3">작업 소개</a>
+              <a href="/menu4">시공 사례</a>
+            </div>
+          </li>
+          <li>
+            <a href="#" class="main-menu">고객센터</a>
+            <div class="sub-menu">
+              <a href="/FAQ">FAQ</a>
+              <a href="/qna">문의하기</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+      <div class="nav-bg"></div>
     </div>
   </div>
 
-
-</div>
-</style>
-<!-- 상단 디자인 -->
-<div class="page_nav">
-	<div class="nav_tit">
-		<h3>찾아오시는 길</h3>
-		<ul>
-			<li>HOME</li>
-			<li>회사 소개</li>
-			<li class="_last">찾아오시는 길</li>
-		</ul>
-    </div>       
-</div>
-<div id="subContents">
-    <div class="sub-contents">
-        <div class="sub1-2">
-            <div class="subtit">
-                <div class="tit">
-                    <h3>찾아오시는 길</h3>
-                 </div>
-                <div class="subtit_line">
-                </div>
-            </div>
-    <div class="portfolio-container">
-<div class="portfolio-container">
-<!-- 찾아오시는 길 -->
-<div id="map-section" style="padding:40px;">
-  <h2 style="margin-bottom:20px;">찾아오시는 길</h2>
-
-<!-- * 카카오맵 - 지도퍼가기 -->
-<!-- 1. 지도 노드 -->
-<div id="daumRoughmapContainer1774943836144" class="root_daum_roughmap root_daum_roughmap_landing"></div>
-
-<!--
-	2. 설치 스크립트
-	* 지도 퍼가기 서비스를 2개 이상 넣을 경우, 설치 스크립트는 하나만 삽입합니다.
--->
-<script charset="UTF-8" class="daum_roughmap_loader_script" src="https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js"></script>
-
-<!-- 3. 실행 스크립트 -->
-<script charset="UTF-8">
-	new daum.roughmap.Lander({
-		"timestamp" : "1774943836144",
-		"key" : "kaektokpeaq",
-		"mapWidth" : "640",
-		"mapHeight" : "360"
-	}).render();
-</script>
-
-  <!-- 정보 -->
-  <div style="margin-top:20px; line-height:1.8; font-size:16px;">
-    <p><strong>업체명:</strong> 수피다</p>
-    <p><strong>서비스:</strong> 예초 작업</p>
-    <p><strong>주소:</strong> 강원도 원주시 천매봉길 150-3</p>
-    <p><strong>문의:</strong> <a href="tel:0337635747">033-763-5747</a></p>
+  <div class="slider">
+    <div class="slide active">
+      <img src="원주아파트.png">
+      <div class="text">
+        <h1>찾아오시는 길</h1>
+        <p>강원도 원주시 천매봉길 150-3</p>
+      </div>
+    </div>
   </div>
+
+  <div class="page_nav">
+    <div class="nav_tit">
+      <h3>찾아오시는 길</h3>
+      <ul>
+        <li>HOME</li>
+        <li>회사 소개</li>
+        <li class="_last">찾아오시는 길</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="subContents">
+    <div class="sub-contents">
+      <div class="sub1-2">
+        <div class="subtit">
+          <div class="tit"><h3>찾아오시는 길</h3></div>
+          <div class="subtit_line"></div>
+        </div>
+
+        <div id="map-section" style="padding:40px;">
+          <div id="daumRoughmapContainer1774943836144" class="root_daum_roughmap root_daum_roughmap_landing"></div>
+          <script charset="UTF-8" class="daum_roughmap_loader_script" src="https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js"></script>
+          <script charset="UTF-8">
+            new daum.roughmap.Lander({
+              "timestamp": "1774943836144",
+              "key": "kaektokpeaq",
+              "mapWidth": "640",
+              "mapHeight": "360"
+            }).render();
+          </script>
+          <div style="margin-top:20px; line-height:1.8; font-size:16px;">
+            <p><strong>업체명:</strong> 수피다</p>
+            <p><strong>서비스:</strong> 예초 작업</p>
+            <p><strong>주소:</strong> 강원도 원주시 천매봉길 150-3</p>
+            <p><strong>문의:</strong> <a href="tel:0337635747">033-763-5747</a></p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
 </div>
+
 <script>
+document.querySelectorAll('.main-menu').forEach(menu => {
+  menu.addEventListener('click', (e) => {
+    if (window.innerWidth <= 980) {
+      e.preventDefault();
+      const sub = menu.nextElementSibling;
+      sub.style.display = (sub.style.display === 'block') ? 'none' : 'block';
+    }
+  });
+});
+
 const navBtn = document.querySelector('.nav-btn');
 const nav = document.querySelector('#nav');
 const navBg = document.querySelector('.nav-bg');
-
-navBtn.addEventListener('click', () => {
-    nav.classList.toggle('open');
-    navBg.classList.toggle('active');
-});
-
-navBg.addEventListener('click', () => {
-    nav.classList.remove('open');
-    navBg.classList.remove('active');
-});
-</script>
-
-<script>
-const navBtn = document.querySelector('.nav-btn');
-const nav = document.querySelector('#nav');
-const navBg = document.querySelector('.nav-bg');
-
-navBtn.addEventListener('click', () => {
-    nav.classList.toggle('open');
-    navBg.classList.toggle('active');
-});
-
-navBg.addEventListener('click', () => {
-    nav.classList.remove('open');
-    navBg.classList.remove('active');
-});
+navBtn.addEventListener('click', () => { nav.classList.toggle('open'); navBg.classList.toggle('active'); });
+navBg.addEventListener('click', () => { nav.classList.remove('open'); navBg.classList.remove('active'); });
 </script>
 <script src="/auth.js"></script>
-
+</body>
+</html>
+```

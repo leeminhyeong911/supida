@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:Arial, sans-serif; background:#f4f4f4; }
+    .admin-wrap { display:flex; min-height:100vh; }
+    .sidebar { width:220px; background:#001c54; color:white; padding:30px 20px; display:flex; flex-direction:column; }
+    .sidebar h2 { font-size:18px; margin-bottom:30px; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:15px; }
+    .sidebar a { display:block; color:white; text-decoration:none; padding:12px 10px; border-radius:8px; margin-bottom:5px; font-size:14px; }
+    .sidebar a:hover, .sidebar a.active { background:rgba(255,255,255,0.15); }
+    .sidebar a.logout { margin-top:auto; color:#ff6b6b; }
+    .main { flex:1; padding:30px; }
+    .main h1 { font-size:24px; color:#001c54; margin-bottom:20px; }
+    .stats { display:flex; gap:20px; margin-bottom:30px; }
+    .stat-card { flex:1; background:white; border-radius:12px; padding:20px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+    .stat-card .num { font-size:36px; font-weight:bold; color:#001c54; }
+    .stat-card .label { font-size:14px; color:#999; margin-top:5px; }
+    .qna-table { width:100%; border-collapse:collapse; background:white; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+    .qna-table th { background:#001c54; color:white; padding:12px; text-align:center; font-size:14px; }
+    .qna-table td { padding:12px; text-align:center; border-bottom:1px solid #eee; font-size:14px; }
+    .qna-table tr:hover { background:#f9f9f9; cursor:pointer; }
+    .badge-wait { background:#fff3cd; color:#856404; padding:4px 10px; border-radius:20px; font-size:12px; }
+    .badge-done { background:#d1e7dd; color:#0f5132; padding:4px 10px; border-radius:20px; font-size:12px; }
+    .btn { padding:8px 16px; border:none; border-radius:8px; cursor:pointer; font-size:13px; }
+    .btn-primary { background:#001c54; color:white; }
+    .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center; }
+    .modal.open { display:flex; }
+    .modal-box { background:white; border-radius:16px; padding:30px; width:600px; max-height:80vh; overflow-y:auto; }
+    .modal-box h3 { margin:0 0 15px; color:#001c54; }
+    .modal-content { background:#f9f9f9; padding:15px; border-radius:8px; margin-bottom:15px; line-height:1.8; }
+    .modal-box textarea { width:100%; height:120px; padding:10px; border:1px solid #ddd; border-radius:8px; box-sizing:border-box; }
+    .modal-footer { display:flex; justify-content:flex-end; gap:10px; margin-top:15px; }
+  </style>
+</head>
+<body>
+<div class="admin-wrap">
+  <div class="sidebar">
+    <h2>⚙️ 관리자</h2>
+    <a href="/admin" class="active">📋 문의 관리</a>
+    <a href="/admin/chat">💬 채팅 관리</a>
+    <a href="/">🏠 사이트로 이동</a>
+    <a href="#" onclick="logoutUser()" class="logout">🚪 로그아웃</a>
+  </div>
+
+  <div class="main">
+    <h1>📋 문의 관리</h1>
+    <div class="stats">
+      <div class="stat-card"><div class="num" id="total-count">-</div><div class="label">전체 문의</div></div>
+      <div class="stat-card"><div class="num" id="wait-count">-</div><div class="label">대기중</div></div>
+      <div class="stat-card"><div class="num" id="done-count">-</div><div class="label">답변완료</div></div>
+    </div>
+    <table class="qna-table">
+      <thead>
+        <tr>
+          <th>번호</th><th>제목</th><th>작성자</th><th>날짜</th><th>상태</th><th>관리</th>
+        </tr>
+      </thead>
+      <tbody id="qna-list">
+        <tr><td colspan="6">로딩 중...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <h3 id="modal-title"></h3>
+    <div style="font-size:13px; color:#999; margin-bottom:10px;">
+      작성자: <b id="modal-name"></b> | 날짜: <b id="modal-date"></b>
+    </div>
+    <div class="modal-content" id="modal-content"></div>
+    <div id="modal-answer-box" style="display:none; margin-bottom:15px;">
+      <div style="font-weight:bold; color:#001c54; margin-bottom:8px;">✅ 기존 답변</div>
+      <div class="modal-content" id="modal-answer"></div>
+    </div>
+    <textarea id="answer-input" placeholder="답변을 입력하세요"></textarea>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">닫기</button>
+      <button class="btn btn-primary" onclick="submitAnswer()">답변 등록</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentId = null;
+
+fetch('/api/me').then(r => r.json()).then(data => {
+  if (!data.isAdmin) location.href = '/';
+});
+
+function loadList() {
+  fetch('/api/qna').then(r => r.json()).then(data => {
+    const total = data.length;
+    const done = data.filter(d => d.answer).length;
+    document.getElementById('total-count').textContent = total;
+    document.getElementById('wait-count').textContent = total - done;
+    document.getElementById('done-count').textContent = done;
+
+    const tbody = document.getElementById('qna-list');
+    if (!data.length) { tbody.innerHTML = '<tr><td colspan="6">문의가 없습니다.</td></tr>'; return; }
+    tbody.innerHTML = data.map((item, i) => `
+      <tr onclick="openModal('${item._id}')">
+        <td>${i + 1}</td>
+        <td>${item.secret ? '🔒 비밀글' : item.title}</td>
+        <td>${item.name}</td>
+        <td>${new Date(item.createdAt).toLocaleDateString('ko-KR')}</td>
+        <td><span class="${item.answer ? 'badge-done' : 'badge-wait'}">${item.answer ? '답변완료' : '대기중'}</span></td>
+        <td><button class="btn btn-primary" onclick="event.stopPropagation(); openModal('${item._id}')">답변</button></td>
+      </tr>
+    `).join('');
+  });
+}
+loadList();
+
+function openModal(id) {
+  currentId = id;
+  fetch(`/api/qna/${id}`).then(r => r.json()).then(data => {
+    document.getElementById('modal-title').textContent = data.secret ? '🔒 비밀글' : data.title;
+    document.getElementById('modal-name').textContent = data.name;
+    document.getElementById('modal-date').textContent = new Date(data.createdAt).toLocaleDateString('ko-KR');
+    document.getElementById('modal-content').textContent = data.content;
+    if (data.answer) {
+      document.getElementById('modal-answer-box').style.display = 'block';
+      document.getElementById('modal-answer').textContent = data.answer;
+    } else {
+      document.getElementById('modal-answer-box').style.display = 'none';
+    }
+    document.getElementById('answer-input').value = '';
+    document.getElementById('modal').classList.add('open');
+  });
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+async function submitAnswer() {
+  const answer = document.getElementById('answer-input').value.trim();
+  if (!answer) return alert('답변을 입력해주세요.');
+  const res = await fetch(`/api/qna/${currentId}/answer`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ answer })
+  });
+  const data = await res.json();
+  if (data.ok) { alert('답변이 등록되었습니다!'); closeModal(); loadList(); }
+}
+
+async function logoutUser() {
+  await fetch('/logout', { method: 'POST' });
+  location.href = '/';
+}
+</script>
+</body>
+</html>

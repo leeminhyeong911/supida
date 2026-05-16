@@ -21,7 +21,6 @@ const httpServer = createServer(app);
 const io = new Server(httpServer);
 const logger = morgan("dev");
 
-// MongoDB 연결
 mongoose.connect(MONGO_URL)
   .then(() => console.log("MongoDB 연결 성공!"))
   .catch((err) => console.log("MongoDB 연결 실패:", err));
@@ -30,7 +29,6 @@ app.use(logger);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// 세션 설정
 app.use(session({
     secret: "supida_secret_key",
     resave: false,
@@ -39,10 +37,9 @@ app.use(session({
     cookie: { maxAge: 1000 * 60 * 60 * 24 },
 }));
 
-// 로그인 상태 확인
 app.get('/api/me', (req, res) => {
     if (req.session.user) {
-        res.json({ loggedIn: true, username: req.session.user.username });
+        res.json({ loggedIn: true, username: req.session.user.username, isAdmin: req.session.user.isAdmin });
     } else {
         res.json({ loggedIn: false });
     }
@@ -50,7 +47,6 @@ app.get('/api/me', (req, res) => {
 
 app.use(express.static(join(__dirname)));
 
-// 페이지 라우터
 app.get('/', (req, res) => res.sendFile(join(__dirname, 'index.html')));
 app.get('/login', (req, res) => res.sendFile(join(__dirname, 'login.html')));
 app.get('/join', (req, res) => res.sendFile(join(__dirname, 'join.html')));
@@ -60,13 +56,22 @@ app.get('/menu1', (req, res) => res.sendFile(join(__dirname, 'menu1.html')));
 app.get('/menu2', (req, res) => res.sendFile(join(__dirname, 'menu2.html')));
 app.get('/menu3', (req, res) => res.sendFile(join(__dirname, 'menu3.html')));
 app.get('/menu4', (req, res) => res.sendFile(join(__dirname, 'menu4.html')));
-app.get('/예초', (req, res) => res.sendFile(join(__dirname, '1예초.html')));
 app.get('/FAQ', (req, res) => res.sendFile(join(__dirname, 'FAQ.html')));
 app.get('/qna', (req, res) => res.sendFile(join(__dirname, 'qna.html')));
 app.get('/q', (req, res) => res.sendFile(join(__dirname, 'q.html')));
 app.get('/qna/:id', (req, res) => res.sendFile(join(__dirname, 'qna_detail.html')));
 
-// 문의 목록 API
+// 관리자 페이지
+app.get('/admin', (req, res) => {
+    if (!req.session.user?.isAdmin) return res.redirect('/');
+    res.sendFile(join(__dirname, 'admin.html'));
+});
+app.get('/admin/chat', (req, res) => {
+    if (!req.session.user?.isAdmin) return res.redirect('/');
+    res.sendFile(join(__dirname, 'admin_chat.html'));
+});
+
+// 문의 API
 app.get('/api/qna', async (req, res) => {
     try {
         const inquiries = await Inquiry.find().sort({ createdAt: -1 });
@@ -76,38 +81,26 @@ app.get('/api/qna', async (req, res) => {
     }
 });
 
-// 문의 작성 API
 app.post('/api/qna', async (req, res) => {
     try {
         const { name, title, content, secret, password } = req.body;
         const hash = (secret === 'y' && password) ? await bcrypt.hash(password, 10) : null;
-        const inquiry = await Inquiry.create({
-            name, title, content,
-            secret: secret === 'y',
-            password: hash
-        });
+        const inquiry = await Inquiry.create({ name, title, content, secret: secret === 'y', password: hash });
         res.json({ ok: true, id: inquiry._id });
     } catch (err) {
-        console.log(err);
         res.status(500).json({ ok: false });
     }
 });
 
-// 문의 상세 API
 app.get('/api/qna/:id', async (req, res) => {
     try {
-        const inquiry = await Inquiry.findByIdAndUpdate(
-            req.params.id,
-            { $inc: { views: 1 } },
-            { new: true }
-        );
+        const inquiry = await Inquiry.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } }, { new: true });
         res.json(inquiry);
     } catch (err) {
         res.status(404).json({ error: "없음" });
     }
 });
 
-// 관리자 답변 API
 app.post('/api/qna/:id/answer', async (req, res) => {
     if (!req.session.user?.isAdmin) return res.status(403).json({ error: "권한 없음" });
     const { answer } = req.body;
@@ -125,7 +118,6 @@ app.post('/join', async (req, res) => {
         await User.create({ username, password: hash });
         res.redirect('/login');
     } catch (err) {
-        console.log(err);
         res.send("회원가입 중 오류가 발생했어요");
     }
 });
@@ -141,7 +133,6 @@ app.post('/login', async (req, res) => {
         req.session.user = { id: user._id, username: user.username, isAdmin: user.isAdmin };
         res.redirect('/');
     } catch (err) {
-        console.log(err);
         res.send("로그인 중 오류가 발생했어요");
     }
 });
@@ -152,22 +143,50 @@ app.post('/logout', (req, res) => {
     res.redirect('/');
 });
 
-// 실시간 채팅
-const chatHistory = [];
+// 소켓 채팅
+const publicChatHistory = [];
+const privateRooms = {};
+const onlineUsers = {};
+
 io.on('connection', (socket) => {
-    socket.emit('history', chatHistory);
-    socket.on('message', (msg) => {
-        const data = {
-            name: msg.name || '익명',
-            text: msg.text,
-            time: new Date().toLocaleTimeString('ko-KR')
-        };
-        chatHistory.push(data);
-        if (chatHistory.length > 100) chatHistory.shift();
-        io.emit('message', data);
+    socket.on('joinPublic', (username) => {
+        onlineUsers[socket.id] = username;
+        socket.join('public');
+        socket.emit('history', publicChatHistory);
+        io.to('public').emit('userList', Object.values(onlineUsers));
+    });
+
+    socket.on('publicMessage', (msg) => {
+        const data = { name: msg.name || '익명', text: msg.text, time: new Date().toLocaleTimeString('ko-KR') };
+        publicChatHistory.push(data);
+        if (publicChatHistory.length > 100) publicChatHistory.shift();
+        io.to('public').emit('publicMessage', data);
+    });
+
+    socket.on('joinPrivate', ({ username, roomId }) => {
+        socket.join(roomId);
+        if (!privateRooms[roomId]) privateRooms[roomId] = [];
+        socket.emit('privateHistory', privateRooms[roomId]);
+    });
+
+    socket.on('privateMessage', ({ roomId, name, text }) => {
+        const data = { name, text, time: new Date().toLocaleTimeString('ko-KR') };
+        if (!privateRooms[roomId]) privateRooms[roomId] = [];
+        privateRooms[roomId].push(data);
+        io.to(roomId).emit('privateMessage', data);
+        io.to('admin').emit('newPrivateMessage', { roomId, ...data });
+    });
+
+    socket.on('joinAdmin', () => {
+        socket.join('admin');
+        socket.emit('roomList', Object.keys(privateRooms));
+    });
+
+    socket.on('disconnect', () => {
+        delete onlineUsers[socket.id];
+        io.to('public').emit('userList', Object.values(onlineUsers));
     });
 });
 
 httpServer.listen(PORT, () => console.log(`server listening on http://localhost:${PORT}`));
-
 console.log("MONGO_URL:", process.env.MONGO_URL);

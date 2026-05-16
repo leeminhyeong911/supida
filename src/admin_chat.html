@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:Arial, sans-serif; background:#f4f4f4; }
+    .admin-wrap { display:flex; min-height:100vh; }
+    .sidebar { width:220px; background:#001c54; color:white; padding:30px 20px; display:flex; flex-direction:column; }
+    .sidebar h2 { font-size:18px; margin-bottom:30px; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:15px; }
+    .sidebar a { display:block; color:white; text-decoration:none; padding:12px 10px; border-radius:8px; margin-bottom:5px; font-size:14px; }
+    .sidebar a:hover, .sidebar a.active { background:rgba(255,255,255,0.15); }
+    .sidebar a.logout { margin-top:auto; color:#ff6b6b; }
+    .main { flex:1; padding:30px; display:flex; gap:20px; }
+    .room-list { width:200px; background:white; border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+    .room-list h2 { font-size:16px; color:#001c54; margin-bottom:15px; }
+    .room-item { padding:10px; background:#f4f4f4; border-radius:8px; margin-bottom:8px; cursor:pointer; font-size:13px; }
+    .room-item:hover, .room-item.active { background:#001c54; color:white; }
+    .chat-area { flex:1; display:flex; flex-direction:column; gap:20px; }
+    .tab-wrap { display:flex; gap:10px; }
+    .tab { padding:8px 16px; border-radius:8px; cursor:pointer; font-size:13px; background:#f4f4f4; border:none; }
+    .tab.active { background:#001c54; color:white; }
+    .chat-section { background:white; border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.08); display:flex; flex-direction:column; }
+    .chat-section h2 { font-size:18px; color:#001c54; margin-bottom:15px; }
+    .chat-box { height:350px; overflow-y:auto; background:#f9f9f9; border-radius:8px; padding:15px; margin-bottom:10px; }
+    .chat-input-wrap { display:flex; gap:8px; }
+    .chat-input-wrap input { flex:1; padding:10px; border:1px solid #ddd; border-radius:8px; outline:none; }
+    .chat-input-wrap button { padding:10px 16px; background:#001c54; color:white; border:none; border-radius:8px; cursor:pointer; }
+    .msg { margin-bottom:10px; }
+    .msg .msg-name { font-weight:bold; color:#001c54; font-size:13px; }
+    .msg .msg-time { font-size:11px; color:#999; margin-left:6px; }
+    .msg .msg-text { margin-top:3px; font-size:14px; }
+  </style>
+</head>
+<body>
+<div class="admin-wrap">
+  <div class="sidebar">
+    <h2>⚙️ 관리자</h2>
+    <a href="/admin">📋 문의 관리</a>
+    <a href="/admin/chat" class="active">💬 채팅 관리</a>
+    <a href="/">🏠 사이트로 이동</a>
+    <a href="#" onclick="logoutUser()" class="logout">🚪 로그아웃</a>
+  </div>
+
+  <div class="main">
+    <div class="room-list">
+      <h2>1대1 채팅방</h2>
+      <div id="room-list-box"><div style="color:#999; font-size:13px;">대기 중...</div></div>
+    </div>
+
+    <div class="chat-area">
+      <div class="tab-wrap">
+        <button class="tab active" onclick="switchTab('private', this)">1대1 채팅</button>
+        <button class="tab" onclick="switchTab('public', this)">전체 채팅</button>
+      </div>
+
+      <div id="tab-private" class="chat-section">
+        <h2>1대1 채팅 <span id="current-room" style="font-size:14px; color:#999;"></span></h2>
+        <div class="chat-box" id="private-box"></div>
+        <div class="chat-input-wrap">
+          <input id="private-input" type="text" placeholder="답변 메시지 입력">
+          <button onclick="sendPrivate()">전송</button>
+        </div>
+      </div>
+
+      <div id="tab-public" class="chat-section" style="display:none;">
+        <h2>전체 채팅</h2>
+        <div class="chat-box" id="public-box"></div>
+        <div class="chat-input-wrap">
+          <input id="public-input" type="text" placeholder="전체 메시지 입력">
+          <button onclick="sendPublic()">전송</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+let currentRoom = null;
+const socket = io();
+
+fetch('/api/me').then(r => r.json()).then(data => {
+  if (!data.isAdmin) location.href = '/';
+  socket.emit('joinAdmin');
+  socket.emit('joinPublic', '관리자');
+});
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-private').style.display = tab === 'private' ? 'flex' : 'none';
+  document.getElementById('tab-public').style.display = tab === 'public' ? 'flex' : 'none';
+}
+
+socket.on('roomList', (rooms) => {
+  const box = document.getElementById('room-list-box');
+  if (!rooms.length) { box.innerHTML = '<div style="color:#999; font-size:13px;">채팅방 없음</div>'; return; }
+  box.innerHTML = rooms.map(r => `<div class="room-item" onclick="joinRoom('${r}')" id="room-${r}">${r}</div>`).join('');
+});
+
+socket.on('newPrivateMessage', ({ roomId, name, text, time }) => {
+  if (roomId === currentRoom) addPrivateMsg({ name, text, time });
+});
+
+function joinRoom(roomId) {
+  currentRoom = roomId;
+  document.querySelectorAll('.room-item').forEach(r => r.classList.remove('active'));
+  const el = document.getElementById(`room-${roomId}`);
+  if (el) el.classList.add('active');
+  document.getElementById('current-room').textContent = `(${roomId})`;
+  document.getElementById('private-box').innerHTML = '';
+  socket.emit('joinPrivate', { username: '관리자', roomId });
+}
+
+socket.on('privateHistory', (msgs) => { msgs.forEach(addPrivateMsg); });
+socket.on('privateMessage', (msg) => { if (msg.name !== '관리자') addPrivateMsg(msg); });
+
+function addPrivateMsg(msg) {
+  const box = document.getElementById('private-box');
+  box.innerHTML += `<div class="msg"><span class="msg-name">${msg.name}</span><span class="msg-time">${msg.time}</span><div class="msg-text">${msg.text}</div></div>`;
+  box.scrollTop = box.scrollHeight;
+}
+
+function sendPrivate() {
+  if (!currentRoom) return alert('채팅방을 선택해주세요.');
+  const text = document.getElementById('private-input').value.trim();
+  if (!text) return;
+  socket.emit('privateMessage', { roomId: currentRoom, name: '관리자', text });
+  addPrivateMsg({ name: '관리자', text, time: new Date().toLocaleTimeString('ko-KR') });
+  document.getElementById('private-input').value = '';
+}
+
+socket.on('history', (msgs) => { msgs.forEach(addPublicMsg); });
+socket.on('publicMessage', (msg) => { addPublicMsg(msg); });
+
+function addPublicMsg(msg) {
+  const box = document.getElementById('public-box');
+  box.innerHTML += `<div class="msg"><span class="msg-name">${msg.name}</span><span class="msg-time">${msg.time}</span><div class="msg-text">${msg.text}</div></div>`;
+  box.scrollTop = box.scrollHeight;
+}
+
+function sendPublic() {
+  const text = document.getElementById('public-input').value.trim();
+  if (!text) return;
+  socket.emit('publicMessage', { name: '관리자', text });
+  document.getElementById('public-input').value = '';
+}
+
+document.getElementById('private-input').addEventListener('keypress', e => { if (e.key === 'Enter') sendPrivate(); });
+document.getElementById('public-input').addEventListener('keypress', e => { if (e.key === 'Enter') sendPublic(); });
+
+async function logoutUser() {
+  await fetch('/logout', { method: 'POST' });
+  location.href = '/';
+}
+</script>
+</body>
+</html>

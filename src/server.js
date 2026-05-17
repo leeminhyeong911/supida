@@ -29,12 +29,24 @@ app.use(logger);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// 🔥 [Railway 배포 대응] Express가 외부 프록시(Railway Load Balancer)를 신뢰하도록 설정
+app.set('trust proxy', 1);
+
+// 현재 환경이 배포 환경(Production)인지 체크
+const isProduction = process.env.NODE_ENV === "production" || !!process.env.PORT;
+
 app.use(session({
     secret: "supida_secret_key",
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: MONGO_URL }),
-    cookie: { maxAge: 1000 * 60 * 60 * 24 },
+    cookie: { 
+        maxAge: 1000 * 60 * 60 * 24,
+        // 🔥 [Railway 배포 대응] 배포 환경(HTTPS)에서는 true, 로컬(HTTP)에서는 false 자동 전환
+        secure: isProduction,
+        // 🔥 크로스 도메인 및 프록시 환경에서 세션 쿠키 전달을 원활하게 하기 위한 설정
+        sameSite: isProduction ? "none" : "lax"
+    },
 }));
 
 app.get('/api/me', (req, res) => {
@@ -128,24 +140,36 @@ app.post('/login', async (req, res) => {
         const { username, password } = req.body;
         const user = await User.findOne({ username });
         if (!user) return res.send("존재하지 않는 아이디예요");
+        
         const match = await bcrypt.compare(password, user.password);
         if (!match) return res.send("비밀번호가 틀렸어요");
-        console.log("로그인 유저:", user.username, "isAdmin:", user.isAdmin); // 추가
+        
+        console.log("로그인 유저:", user.username, "isAdmin:", user.isAdmin);
+        
         req.session.user = {
             id: user._id,
             username: user.username,
             isAdmin: user.isAdmin || false
         };
-        console.log("세션 저장:", req.session.user); // 추가
-        res.redirect('/');
+        
+        // 🔥 [타이밍 이슈 해결] 세션이 DB(MongoStore)에 완전히 저장된 후 리다이렉트 처리
+        req.session.save((err) => {
+            if (err) {
+                console.error("세션 저장 오류:", err);
+                return res.send("로그인 처리 중 오류가 발생했습니다.");
+            }
+            console.log("세션 저장 완료:", req.session.user);
+            res.redirect('/');
+        });
     } catch (err) {
         res.send("로그인 중 오류가 발생했어요");
     }
 });
 
 app.post('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
+    req.session.destroy(() => {
+        res.redirect('/');
+    });
 });
 
 const publicChatHistory = [];

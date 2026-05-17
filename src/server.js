@@ -39,7 +39,11 @@ app.use(session({
 
 app.get('/api/me', (req, res) => {
     if (req.session.user) {
-        res.json({ loggedIn: true, username: req.session.user.username, isAdmin: req.session.user.isAdmin });
+        res.json({
+            loggedIn: true,
+            username: req.session.user.username,
+            isAdmin: req.session.user.isAdmin || false
+        });
     } else {
         res.json({ loggedIn: false });
     }
@@ -61,7 +65,6 @@ app.get('/qna', (req, res) => res.sendFile(join(__dirname, 'qna.html')));
 app.get('/q', (req, res) => res.sendFile(join(__dirname, 'q.html')));
 app.get('/qna/:id', (req, res) => res.sendFile(join(__dirname, 'qna_detail.html')));
 
-// 관리자 페이지
 app.get('/admin', (req, res) => {
     if (!req.session.user?.isAdmin) return res.redirect('/');
     res.sendFile(join(__dirname, 'admin.html'));
@@ -71,7 +74,6 @@ app.get('/admin/chat', (req, res) => {
     res.sendFile(join(__dirname, 'admin_chat.html'));
 });
 
-// 문의 API
 app.get('/api/qna', async (req, res) => {
     try {
         const inquiries = await Inquiry.find().sort({ createdAt: -1 });
@@ -108,7 +110,6 @@ app.post('/api/qna/:id/answer', async (req, res) => {
     res.json({ ok: true });
 });
 
-// 회원가입
 app.post('/join', async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -122,7 +123,6 @@ app.post('/join', async (req, res) => {
     }
 });
 
-// 로그인
 app.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -130,20 +130,22 @@ app.post('/login', async (req, res) => {
         if (!user) return res.send("존재하지 않는 아이디예요");
         const match = await bcrypt.compare(password, user.password);
         if (!match) return res.send("비밀번호가 틀렸어요");
-        req.session.user = { id: user._id, username: user.username, isAdmin: user.isAdmin };
+        req.session.user = {
+            id: user._id,
+            username: user.username,
+            isAdmin: user.isAdmin || false
+        };
         res.redirect('/');
     } catch (err) {
         res.send("로그인 중 오류가 발생했어요");
     }
 });
 
-// 로그아웃
 app.post('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/');
 });
 
-// 소켓 채팅
 const publicChatHistory = [];
 const privateRooms = {};
 const onlineUsers = {};

@@ -130,11 +130,13 @@ app.post('/login', async (req, res) => {
         if (!user) return res.send("존재하지 않는 아이디예요");
         const match = await bcrypt.compare(password, user.password);
         if (!match) return res.send("비밀번호가 틀렸어요");
+        console.log("로그인 유저:", user.username, "isAdmin:", user.isAdmin); // 추가
         req.session.user = {
             id: user._id,
             username: user.username,
             isAdmin: user.isAdmin || false
         };
+        console.log("세션 저장:", req.session.user); // 추가
         res.redirect('/');
     } catch (err) {
         res.send("로그인 중 오류가 발생했어요");

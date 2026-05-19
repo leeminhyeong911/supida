@@ -166,6 +166,17 @@ const nav = document.querySelector('#nav');
 const navBg = document.querySelector('.nav-bg');
 navBtn.addEventListener('click', () => { nav.classList.toggle('open'); navBg.classList.toggle('active'); });
 navBg.addEventListener('click', () => { nav.classList.remove('open'); navBg.classList.remove('active'); });
+
+// URL 파라미터로 견적 내용 자동 입력
+const params = new URLSearchParams(location.search);
+if (params.get('title')) {
+  document.getElementById('title').value = params.get('title');
+}
+if (params.get('content')) {
+  document.getElementById('content').value = params.get('content');
+  document.getElementById('title').style.background = '#fffbe6';
+  document.getElementById('content').style.background = '#fffbe6';
+}
 </script>
 <script src="/auth.js"></script>
 </body>

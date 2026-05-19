@@ -32,7 +32,7 @@ app.use(express.json());
 
 app.set('trust proxy', 1);
 
-const isProduction = process.env.NODE_ENV === "production" || !!process.env.PORT;
+const isProduction = process.env.NODE_ENV === "production" || !!process.env.RAILWAY_ENVIRONMENT;
 
 app.use(session({
     secret: "supida_secret_key",
@@ -46,6 +46,7 @@ app.use(session({
     },
 }));
 
+// 로그인 상태 확인
 app.get('/api/me', (req, res) => {
     if (req.session.user) {
         res.json({
@@ -195,12 +196,12 @@ app.post('/join', async (req, res) => {
     try {
         const { username, password } = req.body;
         const exists = await User.findOne({ username });
-        if (exists) return res.send("이미 존재하는 아이디예요!");
+        if (exists) return res.status(400).json({ error: "이미 존재하는 아이디예요!" });
         const hash = await bcrypt.hash(password, 10);
         await User.create({ username, password: hash });
-        res.redirect('/login');
+        res.json({ ok: true });
     } catch (err) {
-        res.send("회원가입 중 오류가 발생했어요");
+        res.status(500).json({ ok: false });
     }
 });
 
@@ -209,25 +210,20 @@ app.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
         const user = await User.findOne({ username });
-        if (!user) return res.send("존재하지 않는 아이디예요");
+        if (!user) return res.status(400).json({ error: "존재하지 않는 아이디예요" });
         const match = await bcrypt.compare(password, user.password);
-        if (!match) return res.send("비밀번호가 틀렸어요");
-        console.log("로그인 유저:", user.username, "isAdmin:", user.isAdmin);
+        if (!match) return res.status(400).json({ error: "비밀번호가 틀렸어요" });
         req.session.user = {
             id: user._id,
             username: user.username,
             isAdmin: user.isAdmin || false
         };
         req.session.save((err) => {
-            if (err) {
-                console.error("세션 저장 오류:", err);
-                return res.send("로그인 처리 중 오류가 발생했습니다.");
-            }
-            console.log("세션 저장 완료:", req.session.user);
-            res.redirect('/');
+            if (err) return res.status(500).json({ error: "세션 저장 오류" });
+            res.json({ ok: true });
         });
     } catch (err) {
-        res.send("로그인 중 오류가 발생했어요");
+        res.status(500).json({ error: "로그인 중 오류가 발생했어요" });
     }
 });
 

@@ -333,38 +333,6 @@ textarea {
     color: #000000;
 }
 
-.navigation .sub-menu {
-    display: none;
-    z-index: 998;
-    position: absolute;
-    top: 53px;
-    left: 0;
-    width: 100%;
-    height: auto;     
-    min-height: 80px;
-    padding: 23px 0 0 45px;
-}
-
-.navigation .sub-menu a {
-    display: block;
-    text-align: left;
-    line-height: 34px;
-    letter-spacing: -1px;
-    font-size: 15px;
-    font-weight: normal;
-    color: #333;
-}
-
-.navigation .sub-menu .intro-menu {
-    display: none;
-}
-
-
-
-.navigation .sub-menu a:hover {
-    text-decoration: underline;
-}
-
 .navigation li:nth-child(1):hover a.main-menu:after,
 .navigation li:nth-child(2):hover a.main-menu:after,
 .navigation li:nth-child(3):hover a.main-menu:after {

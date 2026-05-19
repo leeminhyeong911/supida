@@ -54,6 +54,28 @@
     .call:hover { transform:translateY(-3px); background:#1b5e20; }
     .kakao { background:#fee500; color:#3c1e1e; }
     .kakao:hover { transform:translateY(-3px); background:#ffd600; }
+    .navigation > li:hover .sub-menu {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+      pointer-events: auto !important;
+      display: flex !important;
+    }
+
+    .navigation .sub-menu {
+      display: flex !important;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      position: absolute;
+      top: 65px;
+      left: 0;
+      flex-direction: column;
+      background: white;
+      padding: 15px 0;
+      min-width: 180px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
   </style>
 </head>
 <body>

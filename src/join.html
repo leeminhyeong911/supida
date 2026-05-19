@@ -11,7 +11,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
+  padding: 30px 0;
 }
 
 .join-container {
@@ -20,14 +21,23 @@ body {
   border-radius: 15px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.1);
   text-align: center;
-  width: 320px;
+  width: 380px;
 }
 
 .logo {
   font-size: 24px;
   font-weight: bold;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   color: #1b5e20;
+}
+
+.section-title {
+  font-size: 13px;
+  color: #999;
+  margin: 20px 0 10px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
 }
 
 .input-group {
@@ -54,6 +64,75 @@ body {
 .input-group input:focus {
   outline: none;
   border-color: #1b5e20;
+}
+
+.optional {
+  font-size: 11px;
+  color: #aaa;
+  margin-left: 4px;
+}
+
+/* 개인정보 동의 */
+.privacy-box {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 20px 0;
+  text-align: left;
+  font-size: 12px;
+  color: #555;
+  line-height: 1.7;
+}
+
+.privacy-box h4 {
+  font-size: 13px;
+  color: #001c54;
+  margin: 0 0 10px 0;
+}
+
+.privacy-box table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0;
+  font-size: 11px;
+}
+
+.privacy-box table th {
+  background: #e8edf5;
+  border: 1px solid #ddd;
+  padding: 6px;
+  text-align: center;
+  color: #333;
+}
+
+.privacy-box table td {
+  border: 1px solid #ddd;
+  padding: 6px;
+  text-align: center;
+}
+
+.privacy-scroll {
+  max-height: 150px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.agree-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+}
+
+.agree-check input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
 }
 
 .join-btn {
@@ -93,19 +172,83 @@ body {
 <div class="join-container">
   <div class="logo">SUPIA</div>
 
-  <form action="/join" method="POST">
+  <form id="join-form">
+    <div class="section-title">🔐 계정 정보 (필수)</div>
     <div class="input-group">
       <label>아이디</label>
-      <input type="text" name="username" placeholder="아이디를 입력하세요" required>
+      <input type="text" id="username" placeholder="아이디를 입력하세요" required>
     </div>
     <div class="input-group">
       <label>비밀번호</label>
-      <input type="password" name="password" placeholder="비밀번호를 입력하세요" required>
+      <input type="password" id="password" placeholder="비밀번호를 입력하세요" required>
     </div>
     <div class="input-group">
       <label>비밀번호 확인</label>
-      <input type="password" name="passwordConfirm" placeholder="비밀번호를 다시 입력하세요" required>
+      <input type="password" id="passwordConfirm" placeholder="비밀번호를 다시 입력하세요" required>
     </div>
+
+    <div class="section-title">👤 개인 정보 <span class="optional">(선택)</span></div>
+    <div class="input-group">
+      <label>이름</label>
+      <input type="text" id="name" placeholder="이름을 입력하세요">
+    </div>
+    <div class="input-group">
+      <label>나이</label>
+      <input type="number" id="age" placeholder="나이를 입력하세요">
+    </div>
+    <div class="input-group">
+      <label>전화번호</label>
+      <input type="text" id="phone" placeholder="010-0000-0000">
+    </div>
+    <div class="input-group">
+      <label>주소</label>
+      <input type="text" id="address" placeholder="주소를 입력하세요">
+    </div>
+    <div class="input-group">
+      <label>이메일</label>
+      <input type="text" id="email" placeholder="이메일을 입력하세요">
+    </div>
+
+    <!-- 개인정보 동의 -->
+    <div class="section-title">📋 개인정보 수집 · 이용 동의 (필수)</div>
+    <div class="privacy-box">
+      <h4>개인정보 수집 · 이용 동의서</h4>
+      <div class="privacy-scroll">
+        <p>수피다(이하 "회사")는 『개인정보 보호법』 제15조에 의거하여 아래와 같이 개인정보를 수집·이용하고자 합니다.</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>수집 항목</th>
+              <th>수집 목적</th>
+              <th>보유 기간</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>아이디, 비밀번호</td>
+              <td>회원 식별 및 서비스 이용</td>
+              <td>회원 탈퇴 시까지</td>
+            </tr>
+            <tr>
+              <td>이름, 연락처, 주소, 이메일</td>
+              <td>서비스 제공 및 고객 관리</td>
+              <td>회원 탈퇴 후 1년</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p style="margin-top:10px;">※ 위 개인정보 수집·이용에 동의하지 않으실 수 있으나, 동의를 거부하실 경우 회원가입 및 서비스 이용이 제한될 수 있습니다.</p>
+        <p>※ 수집된 개인정보는 법령에 따라 안전하게 관리되며, 수집 목적 이외의 용도로 사용되지 않습니다.</p>
+        <p>※ 개인정보와 관련한 문의사항은 고객센터로 연락 주시기 바랍니다.</p>
+      </div>
+
+      <label class="agree-check">
+        <input type="checkbox" id="privacyAgree">
+        위 개인정보 수집·이용에 동의합니다. (필수)
+      </label>
+    </div>
+
     <button type="submit" class="join-btn">회원가입</button>
   </form>
 
@@ -115,13 +258,58 @@ body {
 </div>
 
 <script>
-document.querySelector('form').addEventListener('submit', function(e) {
-  const password = document.querySelector('input[name="password"]').value;
-  const confirm = document.querySelector('input[name="passwordConfirm"]').value;
+document.getElementById('join-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const password = document.getElementById('password').value;
+  const confirm = document.getElementById('passwordConfirm').value;
   if (password !== confirm) {
-    e.preventDefault();
     alert('비밀번호가 일치하지 않아요!');
+    return;
   }
+
+  if (!document.getElementById('privacyAgree').checked) {
+    alert('개인정보 수집·이용에 동의해주세요!');
+    return;
+  }
+
+  const username = document.getElementById('username').value;
+  const name = document.getElementById('name').value;
+  const age = document.getElementById('age').value;
+  const phone = document.getElementById('phone').value;
+  const address = document.getElementById('address').value;
+  const email = document.getElementById('email').value;
+
+  // 1. 회원가입
+  const joinRes = await fetch('/join', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  });
+
+  const joinData = await joinRes.json();
+  if (!joinData.ok) {
+    alert(joinData.error || '회원가입 중 오류가 발생했어요.');
+    return;
+  }
+
+  // 2. 로그인
+  await fetch('/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  });
+
+  // 3. 프로필 저장
+  if (name || age || phone || address || email) {
+    await fetch('/api/profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, age, phone, address, email, memo: '' })
+    });
+  }
+
+  location.href = '/';
 });
 </script>
 <script src="/auth.js"></script>

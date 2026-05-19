@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link href="user2.css" rel="stylesheet">
+  <link href="Custom1.css" rel="stylesheet">
+  <link href="Custom2.css" rel="stylesheet" type="text/css">
+  <style>
+    .nav-btn { width:28px; height:22px; display:none; flex-direction:column; justify-content:space-between; cursor:pointer; z-index:9999; }
+    .nav-btn span { display:block; width:100%; height:3px; background:#002157; border-radius:3px; }
+    @media (max-width:980px) {
+      #nav { position:fixed; top:0; right:-260px; width:260px; height:100vh; background:white; padding:80px 30px; display:flex !important; flex-direction:column; gap:25px; transition:right .3s ease; z-index:9998; box-shadow:-4px 0 12px rgba(0,0,0,0.2); }
+      #nav.open { right:0; }
+      .nav-btn { display:flex; }
+      .nav-bg { position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.45); display:none; z-index:9990; }
+      .nav-bg.active { display:block !important; }
+    }
+    .estimate-wrap { max-width:700px; margin:50px auto; padding:0 20px 60px; }
+    .estimate-wrap h2 { font-size:28px; color:#001c54; margin-bottom:8px; }
+    .estimate-wrap p.desc { color:#666; margin-bottom:30px; font-size:14px; }
+    .card { background:white; border-radius:16px; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,0.08); margin-bottom:20px; }
+    .card h3 { font-size:16px; color:#001c54; margin-bottom:16px; font-weight:bold; }
+    .option-group { display:flex; flex-wrap:wrap; gap:10px; }
+    .option-btn { padding:10px 18px; border:2px solid #ddd; border-radius:50px; background:white; cursor:pointer; font-size:14px; color:#555; transition:0.2s; }
+    .option-btn:hover { border-color:#001c54; color:#001c54; }
+    .option-btn.active { background:#001c54; color:white; border-color:#001c54; }
+    .slider-wrap { padding:10px 0; }
+    .slider-wrap input[type=range] { width:100%; accent-color:#001c54; }
+    .slider-labels { display:flex; justify-content:space-between; font-size:12px; color:#999; margin-top:4px; }
+    .slider-value { text-align:center; font-size:22px; font-weight:bold; color:#001c54; margin:8px 0; }
+    .result-box { background:linear-gradient(135deg, #001c54, #003399); border-radius:16px; padding:30px; color:white; text-align:center; margin-top:10px; }
+    .result-box .label { font-size:14px; opacity:0.8; margin-bottom:8px; }
+    .result-box .price { font-size:42px; font-weight:900; margin-bottom:6px; }
+    .result-box .sub { font-size:13px; opacity:0.7; margin-bottom:20px; }
+    .result-box .notice { font-size:12px; opacity:0.6; background:rgba(255,255,255,0.1); border-radius:8px; padding:10px; }
+    .cta-btn { display:inline-block; margin-top:20px; padding:14px 32px; background:white; color:#001c54; border-radius:50px; font-weight:bold; font-size:15px; text-decoration:none; cursor:pointer; border:none; transition:0.2s; }
+    .cta-btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,0.2); }
+    .detail-table { width:100%; border-collapse:collapse; margin-top:15px; font-size:13px; }
+    .detail-table td { padding:8px 12px; border-bottom:1px solid rgba(255,255,255,0.15); }
+    .detail-table td:last-child { text-align:right; font-weight:bold; }
+  </style>
+</head>
+<body>
+<div id="wrapper">
+
+  <div id="header">
+    <div id="header_in">
+      <div id="L_SITE_LOGO">
+        <h1><a href="/"><img src="logo1.png" width="120" height="50" border="0" loading="lazy"></a></h1>
+      </div>
+      <div class="nav-btn"><span></span><span></span><span></span></div>
+      <nav id="nav">
+        <div class="util-menu" style="visibility:hidden;">
+          <ul>
+            <li id="loginMenu"><a href="/login">LOGIN</a></li>
+            <li id="joinMenu"><a href="/join">JOIN</a></li>
+            <li id="logoutMenu" style="display:none;"><a href="#" onclick="logoutUser()">LOGOUT</a></li>
+          </ul>
+        </div>
+        <h2 class="hidden">사이트 메뉴</h2>
+        <ul class="navigation">
+          <li>
+            <a href="#" class="main-menu">회사소개</a>
+            <div class="sub-menu">
+              <a href="/boss">회사 소개</a>
+              <a href="/map">찾아오시는 길</a>
+            </div>
+          </li>
+          <li>
+            <a href="#" class="main-menu">예초 작업</a>
+            <div class="sub-menu">
+              <a href="/menu1">작업 소개</a>
+              <a href="/menu2">시공 사례</a>
+            </div>
+          </li>
+          <li>
+            <a href="#" class="main-menu">위험 수목</a>
+            <div class="sub-menu">
+              <a href="/menu3">작업 소개</a>
+              <a href="/menu4">시공 사례</a>
+            </div>
+          </li>
+          <li>
+            <a href="#" class="main-menu">고객센터</a>
+            <div class="sub-menu">
+              <a href="/FAQ">FAQ</a>
+              <a href="/qna">문의하기</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+      <div class="nav-bg"></div>
+    </div>
+  </div>
+
+  <div class="page_nav">
+    <div class="nav_tit">
+      <h3>견적 계산기</h3>
+      <ul>
+        <li>HOME</li>
+        <li class="_last">견적 계산기</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="estimate-wrap">
+    <h2>💰 예상 견적 계산기</h2>
+    <p class="desc">작업 조건을 선택하시면 예상 견적을 바로 확인하실 수 있어요. 정확한 견적은 현장 방문 후 안내드립니다.</p>
+
+    <!-- 작업 종류 -->
+    <div class="card">
+      <h3>🌿 작업 종류</h3>
+      <div class="option-group" id="work-type">
+        <button class="option-btn active" data-value="yecho" onclick="selectOption(this, 'work-type')">예초 작업</button>
+        <button class="option-btn" data-value="sumo" onclick="selectOption(this, 'work-type')">위험 수목 제거</button>
+        <button class="option-btn" data-value="both" onclick="selectOption(this, 'work-type')">예초 + 수목</button>
+      </div>
+    </div>
+
+    <!-- 면적 -->
+    <div class="card">
+      <h3>📐 작업 면적</h3>
+      <div class="slider-wrap">
+        <div class="slider-value"><span id="area-val">100</span> 평</div>
+        <input type="range" min="10" max="1000" value="100" step="10" oninput="updateArea(this.value)">
+        <div class="slider-labels"><span>10평</span><span>500평</span><span>1000평</span></div>
+      </div>
+    </div>
+
+    <!-- 난이도 -->
+    <div class="card">
+      <h3>⛰️ 지형 난이도</h3>
+      <div class="option-group" id="difficulty">
+        <button class="option-btn active" data-value="1" onclick="selectOption(this, 'difficulty')">평지 (기본)</button>
+        <button class="option-btn" data-value="1.3" onclick="selectOption(this, 'difficulty')">약간 경사</button>
+        <button class="option-btn" data-value="1.6" onclick="selectOption(this, 'difficulty')">급경사</button>
+        <button class="option-btn" data-value="2" onclick="selectOption(this, 'difficulty')">절벽/위험지형</button>
+      </div>
+    </div>
+
+    <!-- 풀 상태 -->
+    <div class="card">
+      <h3>🌾 풀/수목 상태</h3>
+      <div class="option-group" id="grass-state">
+        <button class="option-btn active" data-value="1" onclick="selectOption(this, 'grass-state')">보통 (무릎 이하)</button>
+        <button class="option-btn" data-value="1.2" onclick="selectOption(this, 'grass-state')">무성함 (허리 이상)</button>
+        <button class="option-btn" data-value="1.5" onclick="selectOption(this, 'grass-state')">매우 무성 (오랜 방치)</button>
+      </div>
+    </div>
+
+    <!-- 추가 옵션 -->
+    <div class="card">
+      <h3>➕ 추가 옵션</h3>
+      <div class="option-group" id="extra">
+        <button class="option-btn" data-value="cleanup" onclick="toggleExtra(this)">폐기물 수거 포함</button>
+        <button class="option-btn" data-value="urgent" onclick="toggleExtra(this)">긴급 출동 요청</button>
+        <button class="option-btn" data-value="weekend" onclick="toggleExtra(this)">주말/공휴일 작업</button>
+      </div>
+    </div>
+
+    <!-- 결과 -->
+    <div class="result-box">
+      <div class="label">예상 견적 (부가세 포함)</div>
+      <div class="price" id="result-price">₩ 0</div>
+      <div class="sub" id="result-range">최소 ~ 최대 범위</div>
+      <table class="detail-table">
+        <tr><td>기본 작업비</td><td id="d-base">-</td></tr>
+        <tr><td>지형 난이도 추가</td><td id="d-diff">-</td></tr>
+        <tr><td>풀 상태 추가</td><td id="d-grass">-</td></tr>
+        <tr><td>추가 옵션</td><td id="d-extra">-</td></tr>
+      </table>
+      <div class="notice">※ 위 금액은 예상 견적이며 현장 상황에 따라 달라질 수 있습니다.<br>정확한 견적은 무료 방문 상담 후 안내드립니다.</div>
+      <a href="/qna" class="cta-btn">📋 정식 견적 문의하기</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let state = {
+  workType: 'yecho',
+  area: 100,
+  difficulty: 1,
+  grassState: 1,
+  extras: new Set()
+};
+
+// 기본 단가 (평당 원)
+const BASE_PRICE = {
+  yecho: 3500,
+  sumo: 8000,
+  both: 10000
+};
+
+function selectOption(el, groupId) {
+  document.querySelectorAll(`#${groupId} .option-btn`).forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  if (groupId === 'work-type') state.workType = el.dataset.value;
+  if (groupId === 'difficulty') state.difficulty = parseFloat(el.dataset.value);
+  if (groupId === 'grass-state') state.grassState = parseFloat(el.dataset.value);
+  calculate();
+}
+
+function toggleExtra(el) {
+  el.classList.toggle('active');
+  if (state.extras.has(el.dataset.value)) {
+    state.extras.delete(el.dataset.value);
+  } else {
+    state.extras.add(el.dataset.value);
+  }
+  calculate();
+}
+
+function updateArea(val) {
+  state.area = parseInt(val);
+  document.getElementById('area-val').textContent = val;
+  calculate();
+}
+
+function calculate() {
+  const basePerPyeong = BASE_PRICE[state.workType];
+  const base = basePerPyeong * state.area;
+  const diffAdd = base * (state.difficulty - 1);
+  const grassAdd = base * (state.grassState - 1);
+
+  let extraAdd = 0;
+  if (state.extras.has('cleanup')) extraAdd += base * 0.15;
+  if (state.extras.has('urgent')) extraAdd += base * 0.2;
+  if (state.extras.has('weekend')) extraAdd += base * 0.1;
+
+  const total = base + diffAdd + grassAdd + extraAdd;
+  const vat = total * 1.1;
+  const min = Math.floor(vat * 0.9 / 1000) * 1000;
+  const max = Math.floor(vat * 1.1 / 1000) * 1000;
+
+  document.getElementById('result-price').textContent = '₩ ' + Math.floor(vat).toLocaleString();
+  document.getElementById('result-range').textContent = `₩${min.toLocaleString()} ~ ₩${max.toLocaleString()} 예상`;
+  document.getElementById('d-base').textContent = '₩ ' + base.toLocaleString();
+  document.getElementById('d-diff').textContent = diffAdd > 0 ? '+ ₩ ' + Math.floor(diffAdd).toLocaleString() : '-';
+  document.getElementById('d-grass').textContent = grassAdd > 0 ? '+ ₩ ' + Math.floor(grassAdd).toLocaleString() : '-';
+  document.getElementById('d-extra').textContent = extraAdd > 0 ? '+ ₩ ' + Math.floor(extraAdd).toLocaleString() : '-';
+}
+
+calculate();
+
+document.querySelectorAll('.main-menu').forEach(menu => {
+  menu.addEventListener('click', (e) => {
+    if (window.innerWidth <= 980) {
+      e.preventDefault();
+      const sub = menu.nextElementSibling;
+      sub.style.display = (sub.style.display === 'block') ? 'none' : 'block';
+    }
+  });
+});
+
+const navBtn = document.querySelector('.nav-btn');
+const nav = document.querySelector('#nav');
+const navBg = document.querySelector('.nav-bg');
+navBtn.addEventListener('click', () => { nav.classList.toggle('open'); navBg.classList.toggle('active'); });
+navBg.addEventListener('click', () => { nav.classList.remove('open'); navBg.classList.remove('active'); });
+</script>
+<script src="/auth.js"></script>
+</body>
+</html>

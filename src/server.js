@@ -100,6 +100,7 @@ app.get('/yecho5', (req, res) => res.sendFile(join(__dirname, '5예초.html')));
 app.get('/yecho6', (req, res) => res.sendFile(join(__dirname, '6예초.html')));
 app.get('/yecho7', (req, res) => res.sendFile(join(__dirname, '7예초.html')));
 app.get('/yecho8', (req, res) => res.sendFile(join(__dirname, '8예초.html')));
+app.get('/estimate', (req, res) => res.sendFile(join(__dirname, 'estimate.html')));
 
 // 관리자 페이지
 app.get('/admin', (req, res) => {

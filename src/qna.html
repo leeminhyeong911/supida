@@ -1,6 +1,3 @@
-`qna.html` 전체 코드예요:
-
-```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -150,6 +147,36 @@
   </div>
 </div>
 
+<!-- 1대1 채팅 아이콘 -->
+<div id="private-icon" onclick="togglePrivate()" style="
+  position:fixed; bottom:165px; right:20px;
+  width:55px; height:55px; border-radius:50%;
+  background:#2e7d32; color:white;
+  display:flex; align-items:center; justify-content:center;
+  font-size:24px; cursor:pointer; z-index:9999;
+  box-shadow:0 4px 12px rgba(0,0,0,0.3);
+">👤</div>
+
+<!-- 1대1 채팅 팝업 -->
+<div id="private-popup" style="
+  position:fixed; bottom:230px; right:20px;
+  width:320px; background:white;
+  border-radius:16px; overflow:hidden;
+  box-shadow:0 8px 30px rgba(0,0,0,0.2);
+  z-index:9999; display:none; flex-direction:column;
+">
+  <div style="background:#2e7d32; color:white; padding:15px 20px; display:flex; justify-content:space-between; align-items:center;">
+    <span style="font-weight:bold;">👤 1대1 문의</span>
+    <span onclick="togglePrivate()" style="cursor:pointer;">✕</span>
+  </div>
+  <div id="private-box" style="height:250px; overflow-y:auto; padding:15px; background:#f9f9f9;"></div>
+  <div style="display:flex; border-top:1px solid #ddd;">
+    <input id="private-name" type="text" placeholder="이름" style="width:80px; padding:10px; border:none; border-right:1px solid #ddd; outline:none; font-size:13px;">
+    <input id="private-input" type="text" placeholder="메시지 입력" style="flex:1; padding:10px; border:none; outline:none; font-size:13px;">
+    <button onclick="sendPrivate()" style="padding:10px 14px; background:#2e7d32; color:white; border:none; cursor:pointer; font-size:13px;">전송</button>
+  </div>
+</div>
+
 <script src="/socket.io/socket.io.js"></script>
 <script>
 // 게시판 목록
@@ -172,7 +199,7 @@ fetch('/api/qna')
     `).join('');
   });
 
-// 채팅 토글
+// 전체 채팅 토글
 function toggleChat() {
   const popup = document.getElementById('chat-popup');
   const isOpen = popup.style.display === 'flex';
@@ -181,16 +208,24 @@ function toggleChat() {
   if (!isOpen) chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// 실시간 채팅
+// 1대1 채팅 토글
+function togglePrivate() {
+  const popup = document.getElementById('private-popup');
+  const isOpen = popup.style.display === 'flex';
+  popup.style.display = isOpen ? 'none' : 'flex';
+  popup.style.flexDirection = 'column';
+}
+
 const socket = io();
 const chatBox = document.getElementById('chat-box');
 
+// 전체 채팅
 socket.on('history', (msgs) => {
   msgs.forEach(addMsg);
   chatBox.scrollTop = chatBox.scrollHeight;
 });
 
-socket.on('message', (msg) => {
+socket.on('publicMessage', (msg) => {
   addMsg(msg);
   chatBox.scrollTop = chatBox.scrollHeight;
 });
@@ -208,12 +243,48 @@ function sendMsg() {
   const name = document.getElementById('chat-name').value.trim() || '익명';
   const text = document.getElementById('chat-input').value.trim();
   if (!text) return;
-  socket.emit('message', { name, text });
+  socket.emit('joinPublic', name);
+  socket.emit('publicMessage', { name, text });
   document.getElementById('chat-input').value = '';
 }
 
 document.getElementById('chat-input').addEventListener('keypress', (e) => {
   if (e.key === 'Enter') sendMsg();
+});
+
+// 1대1 채팅
+let privateRoomId = null;
+
+function sendPrivate() {
+  const name = document.getElementById('private-name').value.trim() || '익명';
+  const text = document.getElementById('private-input').value.trim();
+  if (!text) return;
+  if (!privateRoomId) {
+    privateRoomId = `room_${name}_${Date.now()}`;
+    socket.emit('joinPrivate', { username: name, roomId: privateRoomId });
+  }
+  socket.emit('privateMessage', { roomId: privateRoomId, name, text });
+  addPrivateMsg({ name, text, time: new Date().toLocaleTimeString('ko-KR') });
+  document.getElementById('private-input').value = '';
+}
+
+socket.on('privateMessage', (msg) => {
+  if (msg.name === '관리자') addPrivateMsg(msg);
+});
+
+function addPrivateMsg(msg) {
+  const box = document.getElementById('private-box');
+  box.innerHTML += `
+    <div style="margin-bottom:10px;">
+      <span style="font-weight:bold; color:#2e7d32; font-size:13px;">${msg.name}</span>
+      <span style="font-size:11px; color:#999; margin-left:6px;">${msg.time}</span>
+      <div style="margin-top:3px; font-size:14px;">${msg.text}</div>
+    </div>`;
+  box.scrollTop = box.scrollHeight;
+}
+
+document.getElementById('private-input').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') sendPrivate();
 });
 
 // 모바일 메뉴
@@ -226,4 +297,3 @@ navBg.addEventListener('click', () => { nav.classList.remove('open'); navBg.clas
 <script src="/auth.js"></script>
 </body>
 </html>
-```

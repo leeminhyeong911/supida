@@ -22,6 +22,12 @@
     .text { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:white; text-align:center; }
     .text h1 { font-size:50px; }
     .text p { font-size:20px; }
+    .map-section { padding:40px 20px; max-width:700px; margin:0 auto; text-align:center; }
+    .map-wrap { display:flex; justify-content:center; }
+    .map-info { margin-top:24px; text-align:left; display:inline-block; background:#f9f9f9; border-radius:12px; padding:20px 30px; line-height:2; font-size:16px; }
+    .map-info p { margin:0; }
+    .map-info a { color:#001c54; font-weight:bold; text-decoration:none; }
+    .map-info a:hover { text-decoration:underline; }
   </style>
 </head>
 <body>
@@ -106,8 +112,11 @@
           <div class="subtit_line"></div>
         </div>
 
-        <div id="map-section" style="padding:40px;">
-          <div id="daumRoughmapContainer1774943836144" class="root_daum_roughmap root_daum_roughmap_landing"></div>
+        <div class="map-section">
+          <!-- 지도 -->
+          <div class="map-wrap">
+            <div id="daumRoughmapContainer1774943836144" class="root_daum_roughmap root_daum_roughmap_landing"></div>
+          </div>
           <script charset="UTF-8" class="daum_roughmap_loader_script" src="https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js"></script>
           <script charset="UTF-8">
             new daum.roughmap.Lander({
@@ -117,11 +126,13 @@
               "mapHeight": "360"
             }).render();
           </script>
-          <div style="margin-top:20px; line-height:1.8; font-size:16px;">
-            <p><strong>업체명:</strong> 수피다</p>
-            <p><strong>서비스:</strong> 예초 작업</p>
-            <p><strong>주소:</strong> 강원도 원주시 천매봉길 150-3</p>
-            <p><strong>문의:</strong> <a href="tel:0337635747">033-763-5747</a></p>
+
+          <!-- 정보 -->
+          <div class="map-info">
+            <p>🏢 <strong>업체명:</strong> 수피다</p>
+            <p>🌿 <strong>서비스:</strong> 예초 작업 · 위험 수목 관리</p>
+            <p>📍 <strong>주소:</strong> 강원도 원주시 천매봉길 150-3</p>
+            <p>📞 <strong>문의:</strong> <a href="tel:0337635747">033-763-5747</a></p>
           </div>
         </div>
 

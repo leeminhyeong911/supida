@@ -83,6 +83,23 @@ app.get('/profile', (req, res) => {
     if (!req.session.user) return res.redirect('/login');
     res.sendFile(join(__dirname, 'profile.html'));
 });
+// 팀원 페이지 라우터
+app.get('/sumo1', (req, res) => res.sendFile(join(__dirname, '1수목.html')));
+app.get('/sumo2', (req, res) => res.sendFile(join(__dirname, '2수목.html')));
+app.get('/sumo3', (req, res) => res.sendFile(join(__dirname, '3수목.html')));
+app.get('/sumo4', (req, res) => res.sendFile(join(__dirname, '4수목.html')));
+app.get('/sumo5', (req, res) => res.sendFile(join(__dirname, '5수목.html')));
+app.get('/sumo6', (req, res) => res.sendFile(join(__dirname, '6수목.html')));
+app.get('/sumo7', (req, res) => res.sendFile(join(__dirname, '7수목.html')));
+app.get('/sumo8', (req, res) => res.sendFile(join(__dirname, '8수목.html')));
+app.get('/yecho1', (req, res) => res.sendFile(join(__dirname, '1예초.html')));
+app.get('/yecho2', (req, res) => res.sendFile(join(__dirname, '2예초.html')));
+app.get('/yecho3', (req, res) => res.sendFile(join(__dirname, '3예초.html')));
+app.get('/yecho4', (req, res) => res.sendFile(join(__dirname, '4예초.html')));
+app.get('/yecho5', (req, res) => res.sendFile(join(__dirname, '5예초.html')));
+app.get('/yecho6', (req, res) => res.sendFile(join(__dirname, '6예초.html')));
+app.get('/yecho7', (req, res) => res.sendFile(join(__dirname, '7예초.html')));
+app.get('/yecho8', (req, res) => res.sendFile(join(__dirname, '8예초.html')));
 
 // 관리자 페이지
 app.get('/admin', (req, res) => {

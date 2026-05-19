@@ -21,6 +21,8 @@
     .qna-table tbody tr:hover { background:#f0f0f0; cursor:pointer; }
     .empty { padding:60px 0; color:#999; font-size:15px; }
     .write-btn { display:block; margin:20px auto; padding:10px 20px; border:none; background:black; color:white; cursor:pointer; }
+    .chat-icons { position:fixed; bottom:20px; right:20px; display:flex; flex-direction:column; gap:10px; z-index:9999; }
+    .chat-icon-btn { width:55px; height:55px; border-radius:50%; color:white; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.3); }
   </style>
 </head>
 <body>
@@ -116,24 +118,19 @@
   </div>
 </div>
 
-<!-- 채팅 아이콘 -->
-<div id="chat-icon" onclick="toggleChat()" style="
-  position:fixed; bottom:100px; right:20px;
-  width:55px; height:55px; border-radius:50%;
-  background:#001c54; color:white;
-  display:flex; align-items:center; justify-content:center;
-  font-size:24px; cursor:pointer; z-index:9999;
-  box-shadow:0 4px 12px rgba(0,0,0,0.3);
-">💬</div>
+<!-- 채팅 아이콘들 (우측 하단 묶음) -->
+<div class="chat-icons">
+  <div class="chat-icon-btn" style="background:#2e7d32;" onclick="togglePrivate()">👤</div>
+  <div class="chat-icon-btn" style="background:#001c54;" onclick="toggleChat()">💬</div>
+</div>
 
-<!-- 채팅 팝업 -->
+<!-- 전체 채팅 팝업 -->
 <div id="chat-popup" style="
-  position:fixed; bottom:165px; right:20px;
+  position:fixed; bottom:90px; right:90px;
   width:320px; background:white;
   border-radius:16px; overflow:hidden;
   box-shadow:0 8px 30px rgba(0,0,0,0.2);
-  z-index:9999; display:none;
-  flex-direction:column;
+  z-index:9998; display:none; flex-direction:column;
 ">
   <div style="background:#001c54; color:white; padding:15px 20px; display:flex; justify-content:space-between; align-items:center;">
     <span style="font-weight:bold;">💬 실시간 채팅 문의</span>
@@ -143,27 +140,17 @@
   <div style="display:flex; border-top:1px solid #ddd;">
     <input id="chat-name" type="text" placeholder="이름" style="width:80px; padding:10px; border:none; border-right:1px solid #ddd; outline:none; font-size:13px;">
     <input id="chat-input" type="text" placeholder="메시지 입력" style="flex:1; padding:10px; border:none; outline:none; font-size:13px;">
-    <button onclick="sendMsg()" style="padding:10px 14px; background:#001c54; color:white; border:none; cursor:pointer; border-radius:0; font-size:13px;">전송</button>
+    <button onclick="sendMsg()" style="padding:10px 14px; background:#001c54; color:white; border:none; cursor:pointer; font-size:13px;">전송</button>
   </div>
 </div>
 
-<!-- 1대1 채팅 아이콘 -->
-<div id="private-icon" onclick="togglePrivate()" style="
-  position:fixed; bottom:165px; right:20px;
-  width:55px; height:55px; border-radius:50%;
-  background:#2e7d32; color:white;
-  display:flex; align-items:center; justify-content:center;
-  font-size:24px; cursor:pointer; z-index:9999;
-  box-shadow:0 4px 12px rgba(0,0,0,0.3);
-">👤</div>
-
 <!-- 1대1 채팅 팝업 -->
 <div id="private-popup" style="
-  position:fixed; bottom:230px; right:20px;
+  position:fixed; bottom:90px; right:90px;
   width:320px; background:white;
   border-radius:16px; overflow:hidden;
   box-shadow:0 8px 30px rgba(0,0,0,0.2);
-  z-index:9999; display:none; flex-direction:column;
+  z-index:9998; display:none; flex-direction:column;
 ">
   <div style="background:#2e7d32; color:white; padding:15px 20px; display:flex; justify-content:space-between; align-items:center;">
     <span style="font-weight:bold;">👤 1대1 문의</span>
@@ -179,7 +166,6 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-// 게시판 목록
 fetch('/api/qna')
   .then(res => res.json())
   .then(data => {
@@ -199,7 +185,6 @@ fetch('/api/qna')
     `).join('');
   });
 
-// 전체 채팅 토글
 function toggleChat() {
   const popup = document.getElementById('chat-popup');
   const isOpen = popup.style.display === 'flex';
@@ -208,7 +193,6 @@ function toggleChat() {
   if (!isOpen) chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// 1대1 채팅 토글
 function togglePrivate() {
   const popup = document.getElementById('private-popup');
   const isOpen = popup.style.display === 'flex';
@@ -219,7 +203,6 @@ function togglePrivate() {
 const socket = io();
 const chatBox = document.getElementById('chat-box');
 
-// 전체 채팅
 socket.on('history', (msgs) => {
   msgs.forEach(addMsg);
   chatBox.scrollTop = chatBox.scrollHeight;
@@ -252,7 +235,6 @@ document.getElementById('chat-input').addEventListener('keypress', (e) => {
   if (e.key === 'Enter') sendMsg();
 });
 
-// 1대1 채팅
 let privateRoomId = null;
 
 function sendPrivate() {
@@ -287,7 +269,6 @@ document.getElementById('private-input').addEventListener('keypress', (e) => {
   if (e.key === 'Enter') sendPrivate();
 });
 
-// 모바일 메뉴
 const navBtn = document.querySelector('.nav-btn');
 const nav = document.querySelector('#nav');
 const navBg = document.querySelector('.nav-bg');

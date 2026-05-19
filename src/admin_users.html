@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:Arial, sans-serif; background:#f4f4f4; }
+    .admin-wrap { display:flex; min-height:100vh; }
+    .sidebar { width:220px; background:#001c54; color:white; padding:30px 20px; display:flex; flex-direction:column; }
+    .sidebar h2 { font-size:18px; margin-bottom:30px; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:15px; }
+    .sidebar a { display:block; color:white; text-decoration:none; padding:12px 10px; border-radius:8px; margin-bottom:5px; font-size:14px; }
+    .sidebar a:hover, .sidebar a.active { background:rgba(255,255,255,0.15); }
+    .sidebar a.logout { margin-top:auto; color:#ff6b6b; }
+    .main { flex:1; padding:30px; }
+    .main h1 { font-size:24px; color:#001c54; margin-bottom:20px; }
+    .user-table { width:100%; border-collapse:collapse; background:white; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+    .user-table th { background:#001c54; color:white; padding:12px; text-align:center; font-size:14px; }
+    .user-table td { padding:12px; text-align:center; border-bottom:1px solid #eee; font-size:14px; }
+    .btn { padding:6px 12px; border:none; border-radius:6px; cursor:pointer; font-size:12px; }
+    .btn-edit { background:#ffc107; color:#333; }
+    .btn-delete { background:#dc3545; color:white; }
+    .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center; }
+    .modal.open { display:flex; }
+    .modal-box { background:white; border-radius:16px; padding:30px; width:500px; }
+    .modal-box h3 { margin:0 0 20px; color:#001c54; }
+    .modal-box table { width:100%; border-collapse:collapse; }
+    .modal-box td { padding:8px; border-bottom:1px solid #eee; }
+    .modal-box .label { width:100px; background:#f5f5f5; font-weight:bold; }
+    .modal-box input, .modal-box textarea { width:100%; padding:6px; border:1px solid #ddd; border-radius:4px; box-sizing:border-box; }
+    .modal-footer { display:flex; justify-content:flex-end; gap:10px; margin-top:15px; }
+  </style>
+</head>
+<body>
+<div class="admin-wrap">
+  <div class="sidebar">
+    <h2>⚙️ 관리자</h2>
+    <a href="/admin">📋 문의 관리</a>
+    <a href="/admin/chat">💬 채팅 관리</a>
+    <a href="/admin/users" class="active">👥 회원 관리</a>
+    <a href="/">🏠 사이트로 이동</a>
+    <a href="#" onclick="logoutUser()" class="logout">🚪 로그아웃</a>
+  </div>
+
+  <div class="main">
+    <h1>👥 회원 관리</h1>
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>아이디</th>
+          <th>이름</th>
+          <th>나이</th>
+          <th>전화번호</th>
+          <th>주소</th>
+          <th>이메일</th>
+          <th>관리</th>
+        </tr>
+      </thead>
+      <tbody id="user-list">
+        <tr><td colspan="7">로딩 중...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 수정 모달 -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <h3>회원 정보 수정</h3>
+    <table>
+      <tr><td class="label">이름</td><td><input type="text" id="edit-name"></td></tr>
+      <tr><td class="label">나이</td><td><input type="number" id="edit-age"></td></tr>
+      <tr><td class="label">전화번호</td><td><input type="text" id="edit-phone"></td></tr>
+      <tr><td class="label">주소</td><td><input type="text" id="edit-address"></td></tr>
+      <tr><td class="label">이메일</td><td><input type="text" id="edit-email"></td></tr>
+      <tr><td class="label">메모</td><td><textarea id="edit-memo" style="height:60px;"></textarea></td></tr>
+    </table>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">취소</button>
+      <button class="btn btn-edit" onclick="saveEdit()">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentId = null;
+
+fetch('/api/me').then(r => r.json()).then(data => {
+  if (!data.isAdmin) location.href = '/';
+});
+
+function loadList() {
+  fetch('/api/admin/profiles').then(r => r.json()).then(data => {
+    const tbody = document.getElementById('user-list');
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#999;">등록된 회원 정보가 없습니다.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.map(p => `
+      <tr>
+        <td>${p.username}</td>
+        <td>${p.name || '-'}</td>
+        <td>${p.age || '-'}</td>
+        <td>${p.phone || '-'}</td>
+        <td>${p.address || '-'}</td>
+        <td>${p.email || '-'}</td>
+        <td>
+          <button class="btn btn-edit" onclick="openEdit('${p._id}', '${p.name||''}', '${p.age||''}', '${p.phone||''}', '${p.address||''}', '${p.email||''}', '${p.memo||''}')">수정</button>
+          <button class="btn btn-delete" onclick="deleteProfile('${p._id}')">삭제</button>
+        </td>
+      </tr>
+    `).join('');
+  });
+}
+loadList();
+
+function openEdit(id, name, age, phone, address, email, memo) {
+  currentId = id;
+  document.getElementById('edit-name').value = name;
+  document.getElementById('edit-age').value = age;
+  document.getElementById('edit-phone').value = phone;
+  document.getElementById('edit-address').value = address;
+  document.getElementById('edit-email').value = email;
+  document.getElementById('edit-memo').value = memo;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+async function saveEdit() {
+  const body = {
+    name: document.getElementById('edit-name').value,
+    age: document.getElementById('edit-age').value,
+    phone: document.getElementById('edit-phone').value,
+    address: document.getElementById('edit-address').value,
+    email: document.getElementById('edit-email').value,
+    memo: document.getElementById('edit-memo').value,
+  };
+  const res = await fetch(`/api/admin/profiles/${currentId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const data = await res.json();
+  if (data.ok) { alert('수정되었습니다!'); closeModal(); loadList(); }
+}
+
+async function deleteProfile(id) {
+  if (!confirm('정말 삭제하시겠어요?')) return;
+  const res = await fetch(`/api/admin/profiles/${id}`, { method: 'DELETE' });
+  const data = await res.json();
+  if (data.ok) { alert('삭제되었습니다!'); loadList(); }
+}
+
+async function logoutUser() {
+  await fetch('/logout', { method: 'POST' });
+  location.href = '/';
+}
+</script>
+</body>
+</html>

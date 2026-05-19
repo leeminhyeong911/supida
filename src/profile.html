@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link href="user2.css" rel="stylesheet">
+  <link href="Custom1.css" rel="stylesheet">
+  <link href="Custom2.css" rel="stylesheet">
+  <style>
+    .nav-btn { width:28px; height:22px; display:none; flex-direction:column; justify-content:space-between; cursor:pointer; z-index:9999; }
+    .nav-btn span { display:block; width:100%; height:3px; background:#002157; border-radius:3px; }
+    @media (max-width:980px) {
+      #nav { position:fixed; top:0; right:-260px; width:260px; height:100vh; background:white; padding:80px 30px; display:flex !important; flex-direction:column; gap:25px; transition:right .3s ease; z-index:9998; box-shadow:-4px 0 12px rgba(0,0,0,0.2); }
+      #nav.open { right:0; }
+      .nav-btn { display:flex; }
+      .nav-bg { position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.45); display:none; z-index:9990; }
+      .nav-bg.active { display:block !important; }
+    }
+    .profile-wrap { max-width:600px; margin:50px auto; padding:0 20px; }
+    .profile-wrap h2 { font-size:24px; color:#001c54; margin-bottom:30px; }
+    .profile-table { width:100%; border-collapse:collapse; }
+    .profile-table td { border-bottom:1px solid #ddd; padding:12px; }
+    .profile-table .label { width:120px; background:#f5f5f5; font-weight:bold; color:#001c54; }
+    .profile-table input, .profile-table textarea { width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; font-size:14px; box-sizing:border-box; }
+    .profile-table textarea { height:80px; resize:vertical; }
+    .btn-area { text-align:center; margin-top:20px; }
+    .btn-area button { padding:10px 30px; background:#001c54; color:white; border:none; border-radius:8px; cursor:pointer; font-size:15px; }
+    .btn-area button:hover { background:#002d8a; }
+  </style>
+</head>
+<body>
+<div id="wrapper">
+  <div id="header">
+    <div id="header_in">
+      <div id="L_SITE_LOGO">
+        <h1><a href="/"><img src="logo1.png" width="120" height="50" border="0"></a></h1>
+      </div>
+      <div class="nav-btn"><span></span><span></span><span></span></div>
+      <nav id="nav">
+        <div class="util-menu" style="visibility:hidden;">
+          <ul>
+            <li id="loginMenu"><a href="/login">LOGIN</a></li>
+            <li id="joinMenu"><a href="/join">JOIN</a></li>
+            <li id="logoutMenu" style="display:none;"><a href="#" onclick="logoutUser()">LOGOUT</a></li>
+          </ul>
+        </div>
+        <h2 class="hidden">사이트 메뉴</h2>
+        <ul class="navigation">
+          <li>
+            <a href="#" class="main-menu">회사소개</a>
+            <div class="sub-menu">
+              <a href="/boss">회사 소개</a>
+              <a href="/map">찾아오시는 길</a>
+            </div>
+          </li>
+          <li>
+            <a href="#" class="main-menu">예초 작업</a>
+            <div class="sub-menu">
+              <a href="/menu1">작업 소개</a>
+              <a href="/menu2">시공 사례</a>
+            </div>
+          </li>
+          <li>
+            <a href="#" class="main-menu">위험 수목</a>
+            <div class="sub-menu">
+              <a href="/menu3">작업 소개</a>
+              <a href="/menu4">시공 사례</a>
+            </div>
+          </li>
+          <li>
+            <a href="#" class="main-menu">고객센터</a>
+            <div class="sub-menu">
+              <a href="/FAQ">FAQ</a>
+              <a href="/qna">문의하기</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+      <div class="nav-bg"></div>
+    </div>
+  </div>
+
+  <div class="page_nav">
+    <div class="nav_tit">
+      <h3>내 프로필</h3>
+      <ul>
+        <li>HOME</li>
+        <li class="_last">내 프로필</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="profile-wrap">
+    <h2>👤 내 정보 관리</h2>
+    <table class="profile-table">
+      <tr>
+        <td class="label">아이디</td>
+        <td><input type="text" id="username" readonly style="background:#f0f0f0;"></td>
+      </tr>
+      <tr>
+        <td class="label">이름</td>
+        <td><input type="text" id="name" placeholder="이름을 입력하세요"></td>
+      </tr>
+      <tr>
+        <td class="label">나이</td>
+        <td><input type="number" id="age" placeholder="나이를 입력하세요"></td>
+      </tr>
+      <tr>
+        <td class="label">전화번호</td>
+        <td><input type="text" id="phone" placeholder="010-0000-0000"></td>
+      </tr>
+      <tr>
+        <td class="label">주소</td>
+        <td><input type="text" id="address" placeholder="주소를 입력하세요"></td>
+      </tr>
+      <tr>
+        <td class="label">이메일</td>
+        <td><input type="text" id="email" placeholder="이메일을 입력하세요"></td>
+      </tr>
+      <tr>
+        <td class="label">메모</td>
+        <td><textarea id="memo" placeholder="추가 정보를 입력하세요"></textarea></td>
+      </tr>
+    </table>
+    <div class="btn-area">
+      <button onclick="saveProfile()">저장하기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// 로그인 확인 및 정보 불러오기
+fetch('/api/me').then(r => r.json()).then(data => {
+  if (!data.loggedIn) { location.href = '/login'; return; }
+  document.getElementById('username').value = data.username;
+});
+
+fetch('/api/profile').then(r => r.json()).then(data => {
+  if (data.name) document.getElementById('name').value = data.name;
+  if (data.age) document.getElementById('age').value = data.age;
+  if (data.phone) document.getElementById('phone').value = data.phone;
+  if (data.address) document.getElementById('address').value = data.address;
+  if (data.email) document.getElementById('email').value = data.email;
+  if (data.memo) document.getElementById('memo').value = data.memo;
+});
+
+async function saveProfile() {
+  const body = {
+    name: document.getElementById('name').value,
+    age: document.getElementById('age').value,
+    phone: document.getElementById('phone').value,
+    address: document.getElementById('address').value,
+    email: document.getElementById('email').value,
+    memo: document.getElementById('memo').value,
+  };
+  const res = await fetch('/api/profile', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const data = await res.json();
+  if (data.ok) alert('저장되었습니다!');
+  else alert('오류가 발생했어요.');
+}
+
+const navBtn = document.querySelector('.nav-btn');
+const nav = document.querySelector('#nav');
+const navBg = document.querySelector('.nav-bg');
+navBtn.addEventListener('click', () => { nav.classList.toggle('open'); navBg.classList.toggle('active'); });
+navBg.addEventListener('click', () => { nav.classList.remove('open'); navBg.classList.remove('active'); });
+</script>
+<script src="/auth.js"></script>
+</body>
+</html>

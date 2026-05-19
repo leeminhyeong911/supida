@@ -10,6 +10,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import User from "./user.js";
 import Inquiry from "./Inquiry.js";
+import Profile from "./Profile.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -170,6 +171,80 @@ app.post('/logout', (req, res) => {
     req.session.destroy(() => {
         res.redirect('/');
     });
+});
+
+import Profile from "./Profile.js";
+
+// 프로필 페이지
+app.get('/profile', (req, res) => {
+    if (!req.session.user) return res.redirect('/login');
+    res.sendFile(join(__dirname, 'profile.html'));
+});
+
+// 프로필 조회
+app.get('/api/profile', async (req, res) => {
+    if (!req.session.user) return res.status(401).json({ error: "로그인 필요" });
+    try {
+        const profile = await Profile.findOne({ userId: req.session.user.id });
+        res.json(profile || {});
+    } catch (err) {
+        res.status(500).json({ error: "오류 발생" });
+    }
+});
+
+// 프로필 저장/수정
+app.post('/api/profile', async (req, res) => {
+    if (!req.session.user) return res.status(401).json({ error: "로그인 필요" });
+    try {
+        const { name, age, phone, address, email, memo } = req.body;
+        await Profile.findOneAndUpdate(
+            { userId: req.session.user.id },
+            { name, age, phone, address, email, memo, username: req.session.user.username, updatedAt: new Date() },
+            { upsert: true, new: true }
+        );
+        res.json({ ok: true });
+    } catch (err) {
+        res.status(500).json({ ok: false });
+    }
+});
+
+// 관리자 - 전체 프로필 목록
+app.get('/api/admin/profiles', async (req, res) => {
+    if (!req.session.user?.isAdmin) return res.status(403).json({ error: "권한 없음" });
+    try {
+        const profiles = await Profile.find().sort({ updatedAt: -1 });
+        res.json(profiles);
+    } catch (err) {
+        res.status(500).json({ error: "오류 발생" });
+    }
+});
+
+// 관리자 - 프로필 삭제
+app.delete('/api/admin/profiles/:id', async (req, res) => {
+    if (!req.session.user?.isAdmin) return res.status(403).json({ error: "권한 없음" });
+    try {
+        await Profile.findByIdAndDelete(req.params.id);
+        res.json({ ok: true });
+    } catch (err) {
+        res.status(500).json({ ok: false });
+    }
+});
+
+// 관리자 - 프로필 수정
+app.put('/api/admin/profiles/:id', async (req, res) => {
+    if (!req.session.user?.isAdmin) return res.status(403).json({ error: "권한 없음" });
+    try {
+        const { name, age, phone, address, email, memo } = req.body;
+        await Profile.findByIdAndUpdate(req.params.id, { name, age, phone, address, email, memo, updatedAt: new Date() });
+        res.json({ ok: true });
+    } catch (err) {
+        res.status(500).json({ ok: false });
+    }
+});
+
+app.get('/admin/users', (req, res) => {
+    if (!req.session.user?.isAdmin) return res.redirect('/');
+    res.sendFile(join(__dirname, 'admin_users.html'));
 });
 
 const publicChatHistory = [];

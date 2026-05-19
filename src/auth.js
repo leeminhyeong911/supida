@@ -15,10 +15,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (joinMenu) joinMenu.style.display = "none";
       if (logoutMenu) {
         logoutMenu.style.display = "block";
-        // 로그아웃 옆에 이름 추가
         logoutMenu.insertAdjacentHTML('beforebegin', `
-          <li id="usernameMenu" style="pointer-events:none;">
-            <a style="color:#001c54; font-weight:bold;">👤 ${data.username}</a>
+          <li id="usernameMenu">
+            <a href="/profile" style="color:#001c54; font-weight:bold; cursor:pointer;">👤 ${data.username}</a>
           </li>
         `);
       }
@@ -27,13 +26,11 @@ document.addEventListener("DOMContentLoaded", async () => {
           <li><a href="/admin" style="color:#001c54; font-weight:bold;">⚙️ 관리자</a></li>
         `);
       }
-
     } else {
       if (loginMenu) loginMenu.style.display = "block";
       if (joinMenu) joinMenu.style.display = "block";
       if (logoutMenu) logoutMenu.style.display = "none";
     }
-
   } catch (err) {
     console.error(err);
   } finally {

@@ -1,3 +1,44 @@
+// ===== 페이지 전환 애니메이션 =====
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-12px); }
+  }
+  body {
+    animation: fadeIn 0.35s ease forwards;
+  }
+  body.fade-out {
+    animation: fadeOut 0.25s ease forwards;
+  }
+`;
+document.head.appendChild(style);
+
+// 모든 내부 링크 클릭 시 fadeOut 후 이동
+document.addEventListener('click', (e) => {
+  const link = e.target.closest('a');
+  if (!link) return;
+  const href = link.getAttribute('href');
+  if (!href) return;
+  // 외부 링크, 앵커, javascript: 제외
+  if (href.startsWith('http') || href.startsWith('#') || href.startsWith('javascript') || href.startsWith('tel') || link.target === '_blank') return;
+
+  e.preventDefault();
+  document.body.classList.add('fade-out');
+  setTimeout(() => { location.href = href; }, 250);
+});
+
+// history.back() 대응
+window.addEventListener('popstate', () => {
+  document.body.classList.add('fade-out');
+  setTimeout(() => { history.back(); }, 250);
+});
+
+// ===== 로그인 상태 확인 =====
 document.addEventListener("DOMContentLoaded", async () => {
   const loginMenu = document.getElementById("loginMenu");
   const joinMenu = document.getElementById("joinMenu");
@@ -40,5 +81,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function logoutUser() {
   await fetch('/logout', { method: 'POST', credentials: 'include' });
-  location.href = '/';
+  document.body.classList.add('fade-out');
+  setTimeout(() => { location.href = '/'; }, 250);
 }

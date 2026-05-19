@@ -59,7 +59,11 @@ app.get('/api/me', (req, res) => {
     }
 });
 
-app.use(express.static(join(__dirname)));
+app.use(express.static(join(__dirname), {
+    maxAge: '7d',
+    etag: true,
+    lastModified: true
+}));
 
 // 페이지 라우터
 app.get('/', (req, res) => res.sendFile(join(__dirname, 'index.html')));

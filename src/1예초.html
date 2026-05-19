@@ -46,7 +46,7 @@
   <div id="header">
     <div id="header_in">
       <div id="L_SITE_LOGO">
-        <h1><a href="/"><img src="logo1.png" width="120" height="50" border="0"></a></h1>
+        <h1><a href="/"><img src="logo1.png" width="120" height="50" border="0" loading="lazy"></a></h1>
       </div>
       <div class="nav-btn"><span></span><span></span><span></span></div>
       <nav id="nav">
@@ -95,7 +95,7 @@
 
   <div class="slider">
     <div class="slide active">
-      <img src="나무전지후.png">
+      <img src="나무전지후.png" loading="eager">
       <div class="text">
         <h1>전문 예초 서비스</h1>
         <p>잡초 제거부터 정원 관리까지 완벽하게</p>
@@ -122,10 +122,10 @@
         <div>Hit 225</div>
       </div>
       <div class="ba-content">
-        <img src="나무전지후.png" class="ba-after-img">
+        <img src="나무전지후.png" class="ba-after-img" loading="lazy">
         <div class="ba-after-label">AFTER</div>
         <div class="ba-before-card">
-          <img src="나무전지전.png">
+          <img src="나무전지전.png" loading="lazy">
           <div class="ba-before-label">BEFORE</div>
         </div>
       </div>
@@ -155,4 +155,3 @@ document.querySelectorAll('.main-menu').forEach(menu => {
 <script src="/auth.js"></script>
 </body>
 </html>
-```

@@ -44,7 +44,7 @@
   <div id="header">
     <div id="header_in">
       <div id="L_SITE_LOGO">
-        <h1><a href="/"><img src="logo1.png" width="120" height="50" border="0"></a></h1>
+        <h1><a href="/"><img src="logo1.png" width="120" height="50" border="0" loading="lazy"></a></h1>
       </div>
       <div class="nav-btn"><span></span><span></span><span></span></div>
       <nav id="nav">
@@ -93,7 +93,7 @@
 
   <div class="slider">
     <div class="slide active">
-      <img src="원주아파트.png">
+      <img src="원주아파트.png" loading="eager">
       <div class="text">
         <h1>회사소개</h1>
         <p>수피다는 예초 및 위험 수목 작업을 전문으로 하는 현장 중심 기업입니다.</p>
@@ -123,7 +123,7 @@
         <section class="about-section">
           <div class="about-content">
             <div class="about-img">
-              <img src="회사.png" alt="수피다 작업 현장">
+              <img src="회사.png" alt="수피다 작업 현장" loading="lazy">
             </div>
             <div class="about-text">
               <h3>WHO WE ARE</h3>
@@ -161,4 +161,3 @@ navBg.addEventListener('click', () => { nav.classList.remove('open'); navBg.clas
 <script src="/auth.js"></script>
 </body>
 </html>
-```

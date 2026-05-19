@@ -189,10 +189,11 @@ let state = {
 
 // 기본 단가 (평당 원)
 const BASE_PRICE = {
-  yecho: 3500,
-  sumo: 8000,
-  both: 10000
+  yecho: 660,    // 예초 작업 평당 660원
+  sumo: 2000,    // 위험 수목 제거 (예초보다 3배 이상)
+  both: 2500     // 예초 + 수목 복합
 };
+
 
 function selectOption(el, groupId) {
   document.querySelectorAll(`#${groupId} .option-btn`).forEach(b => b.classList.remove('active'));

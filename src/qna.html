@@ -118,7 +118,7 @@
   </div>
 </div>
 
-<!-- 채팅 아이콘들 (우측 하단 묶음) -->
+<!-- 채팅 아이콘들 -->
 <div class="chat-icons">
   <div class="chat-icon-btn" style="background:#2e7d32;" onclick="togglePrivate()">👤</div>
   <div class="chat-icon-btn" style="background:#001c54;" onclick="toggleChat()">💬</div>
@@ -166,6 +166,24 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
+// 로그인 상태 확인 후 이름 자동 입력
+let currentUsername = null;
+fetch('/api/me').then(r => r.json()).then(data => {
+  if (data.loggedIn) {
+    currentUsername = data.username;
+    // 이름 입력창 자동 채우기 + 읽기전용
+    const chatName = document.getElementById('chat-name');
+    const privateName = document.getElementById('private-name');
+    chatName.value = data.username;
+    chatName.readOnly = true;
+    chatName.style.background = '#f0f0f0';
+    privateName.value = data.username;
+    privateName.readOnly = true;
+    privateName.style.background = '#f0f0f0';
+  }
+});
+
+// 게시판 목록
 fetch('/api/qna')
   .then(res => res.json())
   .then(data => {

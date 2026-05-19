@@ -39,6 +39,8 @@
     .detail-table { width:100%; border-collapse:collapse; margin-top:15px; font-size:13px; }
     .detail-table td { padding:8px 12px; border-bottom:1px solid rgba(255,255,255,0.15); }
     .detail-table td:last-child { text-align:right; font-weight:bold; }
+    .price-ref { background:#f0f4ff; border-radius:12px; padding:16px 20px; margin-bottom:20px; font-size:13px; color:#444; line-height:1.8; }
+    .price-ref strong { color:#001c54; }
   </style>
 </head>
 <body>
@@ -109,6 +111,14 @@
     <h2>💰 예상 견적 계산기</h2>
     <p class="desc">작업 조건을 선택하시면 예상 견적을 바로 확인하실 수 있어요. 정확한 견적은 현장 방문 후 안내드립니다.</p>
 
+    <!-- 시세 참고 -->
+    <div class="price-ref">
+      📊 <strong>2025년 기준 업계 평균 단가</strong><br>
+      예초 작업: 평당 약 660~770원 (1,000평 기준 약 66만원)<br>
+      위험 수목 제거: 평당 약 3,000원 이상 (현장 상황에 따라 상이)<br>
+      ※ 경사지·성수기(7~10월)·폐기물 수거 시 추가 비용 발생
+    </div>
+
     <!-- 작업 종류 -->
     <div class="card">
       <h3>🌿 작업 종류</h3>
@@ -123,9 +133,9 @@
     <div class="card">
       <h3>📐 작업 면적</h3>
       <div class="slider-wrap">
-        <div class="slider-value"><span id="area-val">100</span> 평</div>
-        <input type="range" min="10" max="1000" value="100" step="10" oninput="updateArea(this.value)">
-        <div class="slider-labels"><span>10평</span><span>500평</span><span>1000평</span></div>
+        <div class="slider-value"><span id="area-val">500</span> 평</div>
+        <input type="range" min="100" max="5000" value="500" step="100" oninput="updateArea(this.value)">
+        <div class="slider-labels"><span>100평</span><span>2,500평</span><span>5,000평</span></div>
       </div>
     </div>
 
@@ -157,6 +167,7 @@
         <button class="option-btn" data-value="cleanup" onclick="toggleExtra(this)">폐기물 수거 포함</button>
         <button class="option-btn" data-value="urgent" onclick="toggleExtra(this)">긴급 출동 요청</button>
         <button class="option-btn" data-value="weekend" onclick="toggleExtra(this)">주말/공휴일 작업</button>
+        <button class="option-btn" data-value="season" onclick="toggleExtra(this)">성수기 (7~10월)</button>
       </div>
     </div>
 
@@ -171,7 +182,10 @@
         <tr><td>풀 상태 추가</td><td id="d-grass">-</td></tr>
         <tr><td>추가 옵션</td><td id="d-extra">-</td></tr>
       </table>
-      <div class="notice">※ 위 금액은 예상 견적이며 현장 상황에 따라 달라질 수 있습니다.<br>정확한 견적은 무료 방문 상담 후 안내드립니다.</div>
+      <div class="notice">
+        ※ 위 금액은 예상 견적이며 현장 상황에 따라 달라질 수 있습니다.<br>
+        정확한 견적은 무료 방문 상담 후 안내드립니다.
+      </div>
       <a href="/qna" class="cta-btn">📋 정식 견적 문의하기</a>
     </div>
 
@@ -181,19 +195,18 @@
 <script>
 let state = {
   workType: 'yecho',
-  area: 100,
+  area: 500,
   difficulty: 1,
   grassState: 1,
   extras: new Set()
 };
 
-// 기본 단가 (평당 원)
+// 2025년 실제 시세 반영 (평당 원, 부가세 제외)
 const BASE_PRICE = {
-  yecho: 660,    // 예초 작업 평당 660원
-  sumo: 2000,    // 위험 수목 제거 (예초보다 3배 이상)
-  both: 2500     // 예초 + 수목 복합
+  yecho: 700,    // 예초 평당 약 700원
+  sumo: 3000,    // 위험 수목 제거
+  both: 3500     // 예초 + 수목 복합
 };
-
 
 function selectOption(el, groupId) {
   document.querySelectorAll(`#${groupId} .option-btn`).forEach(b => b.classList.remove('active'));
@@ -216,7 +229,7 @@ function toggleExtra(el) {
 
 function updateArea(val) {
   state.area = parseInt(val);
-  document.getElementById('area-val').textContent = val;
+  document.getElementById('area-val').textContent = parseInt(val).toLocaleString();
   calculate();
 }
 
@@ -227,14 +240,15 @@ function calculate() {
   const grassAdd = base * (state.grassState - 1);
 
   let extraAdd = 0;
-  if (state.extras.has('cleanup')) extraAdd += base * 0.15;
-  if (state.extras.has('urgent')) extraAdd += base * 0.2;
-  if (state.extras.has('weekend')) extraAdd += base * 0.1;
+  if (state.extras.has('cleanup')) extraAdd += state.area * 1100;  // 폐기물 수거 평당 1,100원
+  if (state.extras.has('urgent')) extraAdd += base * 0.2;           // 긴급 20%
+  if (state.extras.has('weekend')) extraAdd += base * 0.1;          // 주말 10%
+  if (state.extras.has('season')) extraAdd += base * 0.15;          // 성수기 15%
 
-  const total = base + diffAdd + grassAdd + extraAdd;
-  const vat = total * 1.1;
-  const min = Math.floor(vat * 0.9 / 1000) * 1000;
-  const max = Math.floor(vat * 1.1 / 1000) * 1000;
+  const subtotal = base + diffAdd + grassAdd + extraAdd;
+  const vat = subtotal * 1.1;
+  const min = Math.floor(vat * 0.9 / 10000) * 10000;
+  const max = Math.floor(vat * 1.1 / 10000) * 10000;
 
   document.getElementById('result-price').textContent = '₩ ' + Math.floor(vat).toLocaleString();
   document.getElementById('result-range').textContent = `₩${min.toLocaleString()} ~ ₩${max.toLocaleString()} 예상`;
